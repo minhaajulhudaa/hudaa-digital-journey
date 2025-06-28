@@ -1,14 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Star, Users, Globe, Shield, Clock, Heart, CheckCircle, Phone, Calendar, Award, Zap, PlayCircle, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowRight, Star, Users, Globe, Shield, Clock, Heart, CheckCircle, Phone, Calendar, Award, Zap, PlayCircle, TrendingUp, MapPin, BookOpen, Plane, MessageSquare, Camera, Video, Download, ChevronRight, ExternalLink } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [counters, setCounters] = useState({ pilgrims: 0, years: 0, satisfaction: 0 });
+  const [activeService, setActiveService] = useState(0);
+  const [emailSubscription, setEmailSubscription] = useState('');
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Animate counters on page load
   useEffect(() => {
@@ -38,6 +42,110 @@ const Index = () => {
     
     animateCounters();
   }, []);
+
+  const handleBookNow = (packageType: string = '') => {
+    const params = new URLSearchParams();
+    if (packageType) params.set('type', packageType);
+    navigate(`/booking?${params.toString()}`);
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailSubscription) return;
+    
+    toast({
+      title: "Subscription Successful!",
+      description: "Thank you for subscribing to our newsletter.",
+    });
+    setEmailSubscription('');
+  };
+
+  const enhancedServices = [
+    {
+      id: 'hajj-umrah',
+      icon: Heart,
+      title: 'Hajj & Umrah Packages',
+      subtitle: 'Sacred Journey Experiences',
+      description: 'Embark on the journey of a lifetime with our meticulously crafted pilgrimage packages',
+      features: [
+        { icon: MapPin, text: 'Premium accommodations near Haramain', highlight: 'Closest to Masjid al-Haram' },
+        { icon: Users, text: 'Experienced Sheikh guidance', highlight: '24/7 spiritual support' },
+        { icon: Shield, text: 'Complete visa arrangements', highlight: 'Hassle-free processing' },
+        { icon: BookOpen, text: 'Pre-travel training courses', highlight: 'Comprehensive preparation' },
+        { icon: Plane, text: 'Visitation itineraries', highlight: 'Historical & spiritual sites' },
+        { icon: Phone, text: '24/7 assistance', highlight: 'Round-the-clock support' }
+      ],
+      stats: [
+        { number: '5000+', label: 'Pilgrims Served' },
+        { number: '98%', label: 'Satisfaction Rate' },
+        { number: '15+', label: 'Years Experience' }
+      ],
+      cta: 'Start Your Sacred Journey',
+      ctaSecondary: 'View Packages',
+      link: '/packages',
+      bookingType: 'hajj-umrah',
+      gradient: 'from-green-600 via-green-700 to-green-800',
+      bgPattern: 'bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.1),transparent_50%)]',
+      testimonial: '"The most transformative experience of my life. Every detail was perfect."',
+      testimonialAuthor: 'Ahmed Rahman, New York'
+    },
+    {
+      id: 'visa-services',
+      icon: Globe,
+      title: 'Visa Services',
+      subtitle: 'Global Travel Solutions',
+      description: 'Navigate international travel with confidence through our comprehensive visa services',
+      features: [
+        { icon: Globe, text: 'Saudi Arabia work & visit visas', highlight: 'Multiple visa types' },
+        { icon: MapPin, text: 'Arab countries documentation', highlight: 'Regional expertise' },
+        { icon: Plane, text: 'European visa assistance', highlight: 'Schengen & UK visas' },
+        { icon: BookOpen, text: 'Pre-departure orientation', highlight: 'Travel preparation' },
+        { icon: Heart, text: 'Religious guidance', highlight: 'Islamic travel advice' },
+        { icon: Zap, text: 'Fast-track processing', highlight: 'Expedited services' }
+      ],
+      stats: [
+        { number: '95%', label: 'Approval Rate' },
+        { number: '3-7', label: 'Days Processing' },
+        { number: '50+', label: 'Countries Covered' }
+      ],
+      cta: 'Apply for Visa',
+      ctaSecondary: 'Learn More',
+      link: '/contact',
+      bookingType: 'visa',
+      gradient: 'from-blue-600 via-blue-700 to-blue-800',
+      bgPattern: 'bg-[radial-gradient(circle_at_70%_30%,rgba(59,130,246,0.1),transparent_50%)]',
+      testimonial: '"Incredibly efficient visa processing. Saved me weeks of hassle."',
+      testimonialAuthor: 'Fatima Hassan, London'
+    },
+    {
+      id: 'religious-training',
+      icon: BookOpen,
+      title: 'Religious Training',
+      subtitle: 'Spiritual Education & Growth',
+      description: 'Deepen your Islamic knowledge and prepare spiritually for your sacred journey',
+      features: [
+        { icon: BookOpen, text: 'Pre-travel Islamic courses', highlight: 'Hajj & Umrah preparation' },
+        { icon: Heart, text: 'Hajj & Umrah rituals training', highlight: 'Step-by-step guidance' },
+        { icon: MessageSquare, text: 'Islamic lectures & seminars', highlight: 'Renowned scholars' },
+        { icon: Users, text: 'Spiritual guidance sessions', highlight: 'Personal mentorship' },
+        { icon: MessageSquare, text: 'Group discussions', highlight: 'Community learning' },
+        { icon: Award, text: 'Certificate programs', highlight: 'Recognized credentials' }
+      ],
+      stats: [
+        { number: '100+', label: 'Courses Available' },
+        { number: '20+', label: 'Expert Instructors' },
+        { number: '1000+', label: 'Students Trained' }
+      ],
+      cta: 'Begin Learning',
+      ctaSecondary: 'View Courses',
+      link: '/courses',
+      bookingType: 'course',
+      gradient: 'from-amber-600 via-orange-600 to-red-600',
+      bgPattern: 'bg-[radial-gradient(circle_at_50%_80%,rgba(245,158,11,0.1),transparent_50%)]',
+      testimonial: '"The knowledge I gained prepared me perfectly for my pilgrimage."',
+      testimonialAuthor: 'Omar Malik, Toronto'
+    }
+  ];
 
   const services = [
     {
@@ -177,82 +285,102 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
-      {/* Hero Section - Enhanced */}
-      <section className="relative pt-20 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/5 to-green-600/10"></div>
+      {/* Enhanced Hero Section */}
+      <section className="relative pt-20 pb-16 px-4 overflow-hidden min-h-screen flex items-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900/10 via-transparent to-green-600/5"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(34,197,94,0.08),transparent_50%)]"></div>
+        
         <div className="container mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-in">
-              <div className="space-y-6">
-                <Badge variant="secondary" className="bg-green-100 text-green-800 px-6 py-3 text-base font-medium animate-float">
-                  <Heart className="w-4 h-4 mr-2" />
+              <div className="space-y-8">
+                <Badge variant="secondary" className="bg-green-100 text-green-800 px-8 py-4 text-lg font-medium animate-float border-green-200">
+                  <Heart className="w-5 h-5 mr-3" />
                   Guiding you on the path of Hudaa
                 </Badge>
                 
-                <h1 className="text-6xl lg:text-8xl font-bold text-green-900 leading-tight">
-                  Your Sacred
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-800">
-                    Journey Begins
-                  </span>
-                </h1>
-                
-                <p className="text-xl text-gray-600 leading-relaxed max-w-2xl">
-                  Experience the spiritual transformation of Hajj and Umrah with expert guidance, 
-                  premium accommodations, and complete peace of mind. Join over <strong>5,000 pilgrims</strong> who 
-                  have trusted us with their sacred journey.
-                </p>
+                <div className="space-y-6">
+                  <h1 className="text-7xl lg:text-9xl font-bold text-green-900 leading-tight">
+                    Your Sacred
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-green-700 to-green-800 animate-pulse">
+                      Journey Begins
+                    </span>
+                  </h1>
+                  
+                  <p className="text-2xl text-gray-600 leading-relaxed max-w-2xl font-light">
+                    Experience the <strong className="text-green-800">spiritual transformation</strong> of Hajj and Umrah with expert guidance, 
+                    premium accommodations, and complete peace of mind. Join over <strong className="text-green-800">5,000 pilgrims</strong> who 
+                    have trusted us with their sacred journey.
+                  </p>
+                </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-12 py-4 text-lg group">
+              <div className="flex flex-col sm:flex-row gap-6">
+                <Button 
+                  size="lg" 
+                  onClick={() => handleBookNow()}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-16 py-6 text-xl font-semibold group shadow-2xl hover:shadow-green-200 transition-all duration-300"
+                >
                   Start Your Journey
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
                 </Button>
-                <Button variant="outline" size="lg" className="border-green-600 text-green-600 hover:bg-green-50 px-12 py-4 text-lg group">
-                  <PlayCircle className="mr-2 w-5 h-5" />
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-2 border-green-600 text-green-600 hover:bg-green-50 px-16 py-6 text-xl font-semibold group shadow-lg hover:shadow-green-100 transition-all duration-300"
+                >
+                  <PlayCircle className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
                   Watch Our Story
                 </Button>
               </div>
 
-              {/* Live Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-green-100">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-800">{counters.pilgrims.toLocaleString()}+</div>
-                  <div className="text-sm text-gray-600">Pilgrims Guided</div>
+              {/* Live Stats with enhanced design */}
+              <div className="grid grid-cols-3 gap-8 pt-12 border-t-2 border-green-100">
+                <div className="text-center group">
+                  <div className="text-5xl font-bold text-green-800 group-hover:scale-110 transition-transform">
+                    {counters.pilgrims.toLocaleString()}+
+                  </div>
+                  <div className="text-sm text-gray-600 font-medium">Pilgrims Guided</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-800">{counters.years}+</div>
-                  <div className="text-sm text-gray-600">Years Experience</div>
+                <div className="text-center group">
+                  <div className="text-5xl font-bold text-green-800 group-hover:scale-110 transition-transform">
+                    {counters.years}+
+                  </div>
+                  <div className="text-sm text-gray-600 font-medium">Years Experience</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-800">{counters.satisfaction}%</div>
-                  <div className="text-sm text-gray-600">Satisfaction Rate</div>
+                <div className="text-center group">
+                  <div className="text-5xl font-bold text-green-800 group-hover:scale-110 transition-transform">
+                    {counters.satisfaction}%
+                  </div>
+                  <div className="text-sm text-gray-600 font-medium">Satisfaction Rate</div>
                 </div>
               </div>
             </div>
 
+            {/* Enhanced Hero Visual */}
             <div className="relative animate-fade-in">
-              {/* Interactive Hero Visual */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-200 to-green-300 rounded-3xl transform rotate-6 opacity-20 animate-float"></div>
-                <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden group">
-                  <div className="aspect-[4/5] bg-gradient-to-br from-green-600 to-green-800 flex flex-col items-center justify-center text-white p-8">
-                    <div className="text-center space-y-6">
-                      <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                        <Heart className="w-12 h-12" />
+                <div className="absolute inset-0 bg-gradient-to-br from-green-200 to-green-300 rounded-[3rem] transform rotate-6 opacity-20 animate-float"></div>
+                <div className="relative bg-white rounded-[3rem] shadow-2xl overflow-hidden group hover:shadow-3xl transition-all duration-500">
+                  <div className="aspect-[4/5] bg-gradient-to-br from-green-600 via-green-700 to-green-800 flex flex-col items-center justify-center text-white p-12 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]"></div>
+                    <div className="text-center space-y-8 relative z-10">
+                      <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 backdrop-blur-sm">
+                        <Heart className="w-16 h-16" />
                       </div>
-                      <h3 className="text-3xl font-bold">Sacred Journey</h3>
-                      <p className="text-green-100 px-4 text-lg">Experience the transformative power of pilgrimage</p>
+                      <div className="space-y-4">
+                        <h3 className="text-4xl font-bold">Sacred Journey</h3>
+                        <p className="text-green-100 px-6 text-xl leading-relaxed">Experience the transformative power of pilgrimage</p>
+                      </div>
                       
-                      {/* Mini Stats */}
-                      <div className="grid grid-cols-2 gap-4 mt-8">
-                        <div className="text-center">
-                          <div className="text-xl font-bold">15+</div>
-                          <div className="text-xs text-green-200">Years</div>
+                      <div className="grid grid-cols-2 gap-6 mt-12">
+                        <div className="text-center p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
+                          <div className="text-3xl font-bold">15+</div>
+                          <div className="text-sm text-green-200">Years</div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-xl font-bold">24/7</div>
-                          <div className="text-xs text-green-200">Support</div>
+                        <div className="text-center p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
+                          <div className="text-3xl font-bold">24/7</div>
+                          <div className="text-sm text-green-200">Support</div>
                         </div>
                       </div>
                     </div>
@@ -260,62 +388,152 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Floating Elements */}
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
-                <Star className="w-8 h-8 text-green-600" />
+              {/* Enhanced Floating Elements */}
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-green-100 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                <Star className="w-10 h-10 text-green-600" />
               </div>
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center animate-pulse">
-                <Globe className="w-6 h-6 text-blue-600" />
+              <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                <Globe className="w-8 h-8 text-blue-600" />
+              </div>
+              <div className="absolute top-1/3 -left-4 w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center animate-ping shadow-lg">
+                <Award className="w-6 h-6 text-amber-600" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Services Overview */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <Badge className="bg-green-100 text-green-800 mb-6 px-6 py-2">Our Sacred Services</Badge>
-            <h2 className="text-5xl font-bold text-green-900 mb-6">
+      {/* Revolutionary Services Section */}
+      <section className="py-32 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-white"></div>
+        <div className="container mx-auto px-4 relative">
+          <div className="text-center mb-24">
+            <Badge className="bg-green-100 text-green-800 mb-8 px-8 py-3 text-lg">Our Sacred Services</Badge>
+            <h2 className="text-6xl font-bold text-green-900 mb-8 leading-tight">
               Comprehensive Pilgrimage Solutions
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-2xl text-gray-600 max-w-5xl mx-auto leading-relaxed font-light">
               From initial consultation to your safe return, we provide end-to-end support for your spiritual journey
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={index} className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-white to-gray-50 overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-10 rounded-full transform translate-x-16 -translate-y-16"></div>
-                
-                <CardContent className="p-10 relative">
-                  <div className={`w-20 h-20 bg-gradient-to-br ${service.gradient} rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                    <service.icon className="w-10 h-10 text-white" />
-                  </div>
+          {/* Service Selector */}
+          <div className="flex justify-center mb-16">
+            <div className="flex bg-gray-100 rounded-2xl p-2">
+              {enhancedServices.map((service, index) => (
+                <button
+                  key={service.id}
+                  onClick={() => setActiveService(index)}
+                  className={`px-8 py-4 rounded-xl transition-all duration-300 flex items-center space-x-3 ${
+                    activeService === index 
+                      ? `bg-gradient-to-r ${service.gradient} text-white shadow-xl` 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                  }`}
+                >
+                  <service.icon className="w-5 h-5" />
+                  <span className="font-medium">{service.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Service Display */}
+          <div className="max-w-7xl mx-auto">
+            {enhancedServices.map((service, index) => (
+              <div
+                key={service.id}
+                className={`transition-all duration-500 ${
+                  activeService === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute inset-0 pointer-events-none'
+                }`}
+              >
+                <Card className={`border-0 shadow-2xl overflow-hidden ${service.bgPattern} relative`}>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-5`}></div>
                   
-                  <h3 className="text-2xl font-bold text-green-900 mb-6 group-hover:text-green-700 transition-colors">
-                    {service.title}
-                  </h3>
-                  
-                  <ul className="space-y-3 mb-8">
-                    {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-start text-gray-600">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Link to={service.link}>
-                    <Button className={`w-full bg-gradient-to-r ${service.gradient} hover:scale-105 transition-all duration-300 group-hover:shadow-lg`}>
-                      {service.cta}
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-0 relative">
+                    <div className="grid lg:grid-cols-2 gap-0 min-h-[600px]">
+                      {/* Content Side */}
+                      <div className="p-16 flex flex-col justify-center space-y-8">
+                        <div className="space-y-6">
+                          <div className={`w-20 h-20 bg-gradient-to-br ${service.gradient} rounded-3xl flex items-center justify-center shadow-xl`}>
+                            <service.icon className="w-10 h-10 text-white" />
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h3 className="text-4xl font-bold text-gray-900">{service.title}</h3>
+                            <p className="text-xl text-gray-600 font-medium">{service.subtitle}</p>
+                            <p className="text-gray-600 text-lg leading-relaxed">{service.description}</p>
+                          </div>
+                        </div>
+
+                        {/* Features Grid */}
+                        <div className="grid grid-cols-1 gap-4">
+                          {service.features.map((feature, i) => (
+                            <div key={i} className="flex items-start space-x-4 p-4 rounded-xl hover:bg-white/50 transition-colors group">
+                              <div className={`w-10 h-10 bg-gradient-to-br ${service.gradient} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                                <feature.icon className="w-5 h-5 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-semibold text-gray-900">{feature.text}</p>
+                                <p className="text-sm text-gray-600">{feature.highlight}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                          <Button
+                            size="lg"
+                            onClick={() => handleBookNow(service.bookingType)}
+                            className={`bg-gradient-to-r ${service.gradient} hover:scale-105 transition-all duration-300 shadow-xl text-lg px-8 py-4 group`}
+                          >
+                            {service.cta}
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                          <Link to={service.link}>
+                            <Button
+                              variant="outline"
+                              size="lg"
+                              className="border-2 hover:scale-105 transition-all duration-300 text-lg px-8 py-4 group"
+                            >
+                              {service.ctaSecondary}
+                              <ExternalLink className="ml-2 w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Visual Side */}
+                      <div className="relative flex flex-col justify-center p-16 bg-gradient-to-br from-gray-50 to-white">
+                        {/* Stats */}
+                        <div className="grid grid-cols-1 gap-8 mb-12">
+                          {service.stats.map((stat, i) => (
+                            <div key={i} className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow group">
+                              <div className={`text-4xl font-bold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block`}>
+                                {stat.number}
+                              </div>
+                              <div className="text-gray-600 font-medium mt-2">{stat.label}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Testimonial */}
+                        <div className="bg-white p-8 rounded-2xl shadow-xl">
+                          <div className="flex mb-4">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                            ))}
+                          </div>
+                          <blockquote className="text-gray-700 italic text-lg mb-4 leading-relaxed">
+                            {service.testimonial}
+                          </blockquote>
+                          <div className="text-gray-600 font-medium">— {service.testimonialAuthor}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
@@ -553,38 +771,48 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Newsletter Section - Enhanced */}
-      <section className="py-20 bg-green-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-4xl font-bold mb-6">Join Our Spiritual Community</h3>
-            <p className="text-xl text-green-100 mb-8 leading-relaxed">
+      {/* Enhanced Newsletter Section */}
+      <section className="py-24 bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
+        
+        <div className="container mx-auto px-4 text-center relative">
+          <div className="max-w-5xl mx-auto">
+            <h3 className="text-5xl font-bold mb-8">Join Our Spiritual Community</h3>
+            <p className="text-2xl text-green-100 mb-12 leading-relaxed font-light">
               Receive exclusive insights, travel updates, spiritual guidance, and special offers. 
-              Join over <strong>10,000 subscribers</strong> on their journey of faith.
+              Join over <strong className="text-white">10,000 subscribers</strong> on their journey of faith.
             </p>
             
-            <div className="max-w-md mx-auto flex gap-4 mb-8">
+            <form onSubmit={handleSubscribe} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-4 mb-12">
               <input 
                 type="email" 
                 placeholder="Enter your email address"
-                className="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                value={emailSubscription}
+                onChange={(e) => setEmailSubscription(e.target.value)}
+                required
+                className="flex-1 px-8 py-6 rounded-2xl text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-400 focus:outline-none text-lg"
               />
-              <Button className="bg-white text-green-900 hover:bg-green-50 px-8 py-4 rounded-xl">
+              <Button 
+                type="submit"
+                className="bg-white text-green-900 hover:bg-green-50 px-12 py-6 rounded-2xl text-lg font-semibold shadow-xl group"
+              >
                 Subscribe
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </div>
+            </form>
             
-            <div className="flex items-center justify-center space-x-8 text-sm text-green-300">
+            <div className="flex flex-wrap items-center justify-center gap-8 text-lg text-green-300">
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
+                <CheckCircle className="w-6 h-6 mr-3" />
                 Weekly spiritual insights
               </div>
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
+                <CheckCircle className="w-6 h-6 mr-3" />
                 Exclusive offers
               </div>
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
+                <CheckCircle className="w-6 h-6 mr-3" />
                 Travel tips & updates
               </div>
             </div>
