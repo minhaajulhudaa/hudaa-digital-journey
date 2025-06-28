@@ -1,4 +1,3 @@
-
 import UniversalSDK from './UniversalSDK';
 
 // Initialize the SDK with production-ready configuration
@@ -352,6 +351,7 @@ const sdk = new UniversalSDK({
         status: 'pending',
         travelers: 1,
         travelerDetails: [],
+        totalAmount: 0,
         paidAmount: 0,
         paymentStatus: 'pending',
         travelInsurance: false,
