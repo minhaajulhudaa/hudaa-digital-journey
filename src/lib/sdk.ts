@@ -1,4 +1,3 @@
-
 import UniversalSDK from './UniversalSDK';
 
 // Initialize the SDK with production-ready configuration for multi-tenant SaaS
