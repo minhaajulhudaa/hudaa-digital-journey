@@ -1,29 +1,30 @@
+
 import UniversalSDK from './UniversalSDK';
 
-// Initialize the SDK with production-ready configuration
+// Initialize the SDK with production-ready configuration for multi-tenant SaaS
 const sdk = new UniversalSDK({
-  owner: 'minhaajulhudaa', // Replace with actual GitHub username
-  repo: 'minhaajulhudaa-data', // Replace with actual repo name
-  token: process.env.GITHUB_TOKEN || 'your-github-token', // Use environment variable
+  owner: 'travelwith', // Main SaaS platform GitHub username
+  repo: 'travelwith-data', // Main SaaS platform repo name
+  token: process.env.GITHUB_TOKEN || 'your-github-token',
   branch: 'main',
   basePath: 'db',
   mediaPath: 'media',
   cloudinary: {
-    uploadPreset: 'minhaajulhudaa',
+    uploadPreset: 'travelwith',
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || 'your-cloudinary-name',
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
   smtp: {
     endpoint: process.env.SMTP_ENDPOINT || 'https://api.emailjs.com/api/v1.0/email/send',
-    from: 'info@minhaajulhudaa.com',
+    from: 'info@travelwith.com',
   },
   templates: {
     otp: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px;">
         <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #004225; margin: 0; font-size: 28px;">Minhaajulhudaa Travel & Tour</h1>
+            <h1 style="color: #004225; margin: 0; font-size: 28px;">{{siteName}} - Travel & Tour</h1>
             <p style="color: #666; margin: 10px 0 0 0;">Your trusted partner for sacred journeys</p>
           </div>
           <div style="text-align: center; margin: 30px 0;">
@@ -32,7 +33,7 @@ const sdk = new UniversalSDK({
             <p style="color: #666; font-size: 14px;">This code will expire in 10 minutes.</p>
           </div>
           <div style="border-top: 1px solid #eee; padding-top: 20px; text-align: center;">
-            <p style="color: #666; font-size: 12px; margin: 0;">© 2024 Minhaajulhudaa Travel & Tour. All rights reserved.</p>
+            <p style="color: #666; font-size: 12px; margin: 0;">© 2024 {{siteName}} Travel & Tour. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -41,7 +42,7 @@ const sdk = new UniversalSDK({
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px;">
         <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #004225; margin: 0; font-size: 28px;">Welcome to Minhaajulhudaa</h1>
+            <h1 style="color: #004225; margin: 0; font-size: 28px;">Welcome to {{siteName}}</h1>
           </div>
           <div style="margin: 30px 0;">
             <p style="font-size: 18px; color: #333; line-height: 1.6;">Thank you for joining our community of faithful travelers. We're honored to guide you on your sacred journey.</p>
@@ -86,6 +87,29 @@ const sdk = new UniversalSDK({
         </div>
       </div>
     `,
+    site_welcome: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px;">
+        <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #004225; margin: 0; font-size: 28px;">Welcome to TravelWith Platform!</h1>
+          </div>
+          <div style="margin: 30px 0;">
+            <p style="font-size: 18px; color: #333; line-height: 1.6;">Congratulations! Your travel and tour platform "{{siteName}}" has been successfully created.</p>
+            <p style="color: #666; line-height: 1.6;">Your platform is now ready with:</p>
+            <ul style="color: #666; line-height: 1.8; padding-left: 20px;">
+              <li>Your own branded travel website</li>
+              <li>Complete booking and package management system</li>
+              <li>Customer management dashboard</li>
+              <li>Content management tools</li>
+              <li>Multi-language support</li>
+            </ul>
+          </div>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="{{siteUrl}}" style="background: linear-gradient(135deg, #004225, #059669); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Visit Your Platform</a>
+          </div>
+        </div>
+      </div>
+    `,
     newsletter: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px;">
         <div style="background: white; padding: 40px; border-radius: 16px;">
@@ -103,8 +127,52 @@ const sdk = new UniversalSDK({
     `
   },
   schemas: {
+    // NEW: Sites schema for multi-tenant platform
+    sites: {
+      required: ['name', 'slug', 'ownerEmail'],
+      types: {
+        name: 'string',
+        slug: 'string', // URL slug like 'minhaajulhudaa'
+        ownerEmail: 'string',
+        ownerName: 'string',
+        description: 'string',
+        logo: 'string',
+        favicon: 'string',
+        primaryColor: 'string',
+        secondaryColor: 'string',
+        contactEmail: 'string',
+        contactPhone: 'string',
+        address: 'object',
+        socialMedia: 'object',
+        languages: 'array',
+        currency: 'string',
+        timezone: 'string',
+        status: 'string',
+        subscription: 'object',
+        features: 'array',
+        customDomain: 'string',
+        seoSettings: 'object',
+        integrations: 'object',
+        created: 'date',
+        updated: 'date',
+        lastActivity: 'date'
+      },
+      defaults: {
+        status: 'active',
+        languages: ['en'],
+        currency: 'USD',
+        timezone: 'UTC',
+        features: ['basic'],
+        created: new Date().toISOString(),
+        address: {},
+        socialMedia: {},
+        subscription: { plan: 'free', status: 'active' },
+        seoSettings: {},
+        integrations: {}
+      },
+    },
     users: {
-      required: ['email'],
+      required: ['email', 'siteId'],
       types: {
         email: 'string',
         name: 'string',
@@ -117,7 +185,9 @@ const sdk = new UniversalSDK({
         dateJoined: 'date',
         lastLogin: 'date',
         newsletter: 'boolean',
-        notifications: 'object'
+        notifications: 'object',
+        siteId: 'string', // Links user to specific site
+        siteRoles: 'array' // Roles within the site
       },
       defaults: {
         verified: false,
@@ -129,11 +199,12 @@ const sdk = new UniversalSDK({
           email: true,
           sms: false,
           push: true
-        }
+        },
+        siteRoles: ['customer']
       },
     },
     packages: {
-      required: ['title', 'type', 'price'],
+      required: ['title', 'type', 'price', 'siteId'],
       types: {
         title: 'string',
         description: 'string',
@@ -163,7 +234,8 @@ const sdk = new UniversalSDK({
         guides: 'array',
         created: 'date',
         updated: 'date',
-        author: 'string'
+        author: 'string',
+        siteId: 'string' // Links package to specific site
       },
       defaults: {
         status: 'active',
@@ -184,7 +256,7 @@ const sdk = new UniversalSDK({
       },
     },
     blogs: {
-      required: ['title', 'content'],
+      required: ['title', 'content', 'siteId'],
       types: {
         title: 'string',
         content: 'string',
@@ -205,7 +277,8 @@ const sdk = new UniversalSDK({
         gallery: 'array',
         relatedPosts: 'array',
         readTime: 'number',
-        status: 'string'
+        status: 'string',
+        siteId: 'string' // Links blog to specific site
       },
       defaults: {
         published: false,
@@ -223,7 +296,7 @@ const sdk = new UniversalSDK({
       },
     },
     courses: {
-      required: ['title', 'description'],
+      required: ['title', 'description', 'siteId'],
       types: {
         title: 'string',
         description: 'string',
@@ -250,7 +323,8 @@ const sdk = new UniversalSDK({
         status: 'string',
         tags: 'array',
         thumbnail: 'string',
-        gallery: 'array'
+        gallery: 'array',
+        siteId: 'string' // Links course to specific site
       },
       defaults: {
         featured: false,
@@ -274,7 +348,7 @@ const sdk = new UniversalSDK({
       },
     },
     events: {
-      required: ['title', 'date'],
+      required: ['title', 'date', 'siteId'],
       types: {
         title: 'string',
         description: 'string',
@@ -299,7 +373,8 @@ const sdk = new UniversalSDK({
         registrationDeadline: 'date',
         thumbnail: 'string',
         created: 'date',
-        updated: 'date'
+        updated: 'date',
+        siteId: 'string' // Links event to specific site
       },
       defaults: {
         registered: 0,
@@ -317,7 +392,7 @@ const sdk = new UniversalSDK({
       },
     },
     bookings: {
-      required: ['packageId', 'customerEmail', 'status'],
+      required: ['packageId', 'customerEmail', 'status', 'siteId'],
       types: {
         packageId: 'string',
         packageTitle: 'string',
@@ -345,7 +420,8 @@ const sdk = new UniversalSDK({
         updated: 'date',
         notes: 'string',
         source: 'string',
-        referral: 'string'
+        referral: 'string',
+        siteId: 'string' // Links booking to specific site
       },
       defaults: {
         status: 'pending',
@@ -363,7 +439,7 @@ const sdk = new UniversalSDK({
       },
     },
     knowledgebase: {
-      required: ['title', 'content'],
+      required: ['title', 'content', 'siteId'],
       types: {
         title: 'string',
         content: 'string',
@@ -381,7 +457,8 @@ const sdk = new UniversalSDK({
         relatedArticles: 'array',
         attachments: 'array',
         faqs: 'array',
-        searchKeywords: 'array'
+        searchKeywords: 'array',
+        siteId: 'string' // Links knowledge base to specific site
       },
       defaults: {
         tags: [],
@@ -399,7 +476,7 @@ const sdk = new UniversalSDK({
       }
     },
     testimonials: {
-      required: ['name', 'content'],
+      required: ['name', 'content', 'siteId'],
       types: {
         name: 'string',
         content: 'string',
@@ -413,7 +490,8 @@ const sdk = new UniversalSDK({
         title: 'string',
         video: 'string',
         status: 'string',
-        tags: 'array'
+        tags: 'array',
+        siteId: 'string' // Links testimonial to specific site
       },
       defaults: {
         rating: 5,
@@ -425,7 +503,7 @@ const sdk = new UniversalSDK({
       }
     },
     newsletter: {
-      required: ['email'],
+      required: ['email', 'siteId'],
       types: {
         email: 'string',
         name: 'string',
@@ -434,7 +512,8 @@ const sdk = new UniversalSDK({
         interests: 'array',
         source: 'string',
         status: 'string',
-        unsubscribeToken: 'string'
+        unsubscribeToken: 'string',
+        siteId: 'string' // Links newsletter subscription to specific site
       },
       defaults: {
         subscribed: true,
