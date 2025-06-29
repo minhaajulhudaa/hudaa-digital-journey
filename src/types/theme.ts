@@ -1,0 +1,260 @@
+
+export interface Theme {
+  id: string;
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  cardColor: string;
+  borderColor: string;
+  gradientFrom: string;
+  gradientTo: string;
+  fontFamily: string;
+  buttonStyle: 'rounded' | 'square' | 'pill';
+  cardStyle: 'flat' | 'shadow' | 'border';
+}
+
+export const themes: Theme[] = [
+  {
+    id: 'default',
+    name: 'Default Green',
+    primaryColor: '#004225',
+    secondaryColor: '#ffffff',
+    accentColor: '#22c55e',
+    backgroundColor: '#ffffff',
+    textColor: '#1f2937',
+    cardColor: '#ffffff',
+    borderColor: '#e5e7eb',
+    gradientFrom: '#16a34a',
+    gradientTo: '#0ea5e9',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'ocean-blue',
+    name: 'Ocean Blue',
+    primaryColor: '#0f172a',
+    secondaryColor: '#ffffff',
+    accentColor: '#3b82f6',
+    backgroundColor: '#f8fafc',
+    textColor: '#1e293b',
+    cardColor: '#ffffff',
+    borderColor: '#cbd5e1',
+    gradientFrom: '#3b82f6',
+    gradientTo: '#1d4ed8',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'sunset-orange',
+    name: 'Sunset Orange',
+    primaryColor: '#9a3412',
+    secondaryColor: '#ffffff',
+    accentColor: '#f97316',
+    backgroundColor: '#fffbeb',
+    textColor: '#92400e',
+    cardColor: '#ffffff',
+    borderColor: '#fed7aa',
+    gradientFrom: '#f97316',
+    gradientTo: '#ea580c',
+    fontFamily: 'Inter',
+    buttonStyle: 'pill',
+    cardStyle: 'border'
+  },
+  {
+    id: 'royal-purple',
+    name: 'Royal Purple',
+    primaryColor: '#581c87',
+    secondaryColor: '#ffffff',
+    accentColor: '#a855f7',
+    backgroundColor: '#faf5ff',
+    textColor: '#6b21a8',
+    cardColor: '#ffffff',
+    borderColor: '#e9d5ff',
+    gradientFrom: '#a855f7',
+    gradientTo: '#9333ea',
+    fontFamily: 'Playfair Display',
+    buttonStyle: 'square',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'forest-green',
+    name: 'Forest Green',
+    primaryColor: '#14532d',
+    secondaryColor: '#f0fdf4',
+    accentColor: '#16a34a',
+    backgroundColor: '#f0fdf4',
+    textColor: '#15803d',
+    cardColor: '#ffffff',
+    borderColor: '#bbf7d0',
+    gradientFrom: '#22c55e',
+    gradientTo: '#16a34a',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'flat'
+  },
+  {
+    id: 'crimson-red',
+    name: 'Crimson Red',
+    primaryColor: '#991b1b',
+    secondaryColor: '#ffffff',
+    accentColor: '#ef4444',
+    backgroundColor: '#fef2f2',
+    textColor: '#b91c1c',
+    cardColor: '#ffffff',
+    borderColor: '#fecaca',
+    gradientFrom: '#ef4444',
+    gradientTo: '#dc2626',
+    fontFamily: 'Inter',
+    buttonStyle: 'pill',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'golden-yellow',
+    name: 'Golden Yellow',
+    primaryColor: '#a16207',
+    secondaryColor: '#fffbeb',
+    accentColor: '#eab308',
+    backgroundColor: '#fffbeb',
+    textColor: '#a16207',
+    cardColor: '#ffffff',
+    borderColor: '#fde68a',
+    gradientFrom: '#eab308',
+    gradientTo: '#ca8a04',
+    fontFamily: 'Playfair Display',
+    buttonStyle: 'square',
+    cardStyle: 'border'
+  },
+  {
+    id: 'midnight-blue',
+    name: 'Midnight Blue',
+    primaryColor: '#1e1b4b',
+    secondaryColor: '#ffffff',
+    accentColor: '#6366f1',
+    backgroundColor: '#f1f5f9',
+    textColor: '#312e81',
+    cardColor: '#ffffff',
+    borderColor: '#c7d2fe',
+    gradientFrom: '#6366f1',
+    gradientTo: '#4f46e5',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'rose-pink',
+    name: 'Rose Pink',
+    primaryColor: '#9f1239',
+    secondaryColor: '#ffffff',
+    accentColor: '#f43f5e',
+    backgroundColor: '#fff1f2',
+    textColor: '#be123c',
+    cardColor: '#ffffff',
+    borderColor: '#fecdd3',
+    gradientFrom: '#f43f5e',
+    gradientTo: '#e11d48',
+    fontFamily: 'Inter',
+    buttonStyle: 'pill',
+    cardStyle: 'flat'
+  },
+  {
+    id: 'teal-cyan',
+    name: 'Teal Cyan',
+    primaryColor: '#0f766e',
+    secondaryColor: '#ffffff',
+    accentColor: '#14b8a6',
+    backgroundColor: '#f0fdfa',
+    textColor: '#0d9488',
+    cardColor: '#ffffff',
+    borderColor: '#99f6e4',
+    gradientFrom: '#14b8a6',
+    gradientTo: '#0891b2',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'border'
+  },
+  {
+    id: 'slate-gray',
+    name: 'Slate Gray',
+    primaryColor: '#1e293b',
+    secondaryColor: '#ffffff',
+    accentColor: '#64748b',
+    backgroundColor: '#f8fafc',
+    textColor: '#334155',
+    cardColor: '#ffffff',
+    borderColor: '#cbd5e1',
+    gradientFrom: '#64748b',
+    gradientTo: '#475569',
+    fontFamily: 'Inter',
+    buttonStyle: 'square',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'emerald-mint',
+    name: 'Emerald Mint',
+    primaryColor: '#065f46',
+    secondaryColor: '#ecfdf5',
+    accentColor: '#10b981',
+    backgroundColor: '#ecfdf5',
+    textColor: '#047857',
+    cardColor: '#ffffff',
+    borderColor: '#a7f3d0',
+    gradientFrom: '#10b981',
+    gradientTo: '#059669',
+    fontFamily: 'Playfair Display',
+    buttonStyle: 'pill',
+    cardStyle: 'flat'
+  },
+  {
+    id: 'amber-gold',
+    name: 'Amber Gold',
+    primaryColor: '#92400e',
+    secondaryColor: '#fffbeb',
+    accentColor: '#f59e0b',
+    backgroundColor: '#fffbeb',
+    textColor: '#b45309',
+    cardColor: '#ffffff',
+    borderColor: '#fcd34d',
+    gradientFrom: '#f59e0b',
+    gradientTo: '#d97706',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'border'
+  },
+  {
+    id: 'violet-lavender',
+    name: 'Violet Lavender',
+    primaryColor: '#5b21b6',
+    secondaryColor: '#ffffff',
+    accentColor: '#8b5cf6',
+    backgroundColor: '#f5f3ff',
+    textColor: '#6d28d9',
+    cardColor: '#ffffff',
+    borderColor: '#ddd6fe',
+    gradientFrom: '#8b5cf6',
+    gradientTo: '#7c3aed',
+    fontFamily: 'Playfair Display',
+    buttonStyle: 'square',
+    cardStyle: 'shadow'
+  },
+  {
+    id: 'charcoal-black',
+    name: 'Charcoal Black',
+    primaryColor: '#111827',
+    secondaryColor: '#f9fafb',
+    accentColor: '#374151',
+    backgroundColor: '#f9fafb',
+    textColor: '#1f2937',
+    cardColor: '#ffffff',
+    borderColor: '#d1d5db',
+    gradientFrom: '#374151',
+    gradientTo: '#111827',
+    fontFamily: 'Inter',
+    buttonStyle: 'rounded',
+    cardStyle: 'shadow'
+  }
+];
