@@ -1,10 +1,10 @@
-
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface User {
   id: string;
   email: string;
+  name?: string;
   roles?: string[];
   profile?: any;
 }
@@ -12,70 +12,60 @@ export interface User {
 class SDK {
   private baseURL: string;
   private sessions: Map<string, User> = new Map();
+  private mockData: any = {};
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-    
-    // Initialize with sample data for minhaajulhudaa
-    this.initializeSampleData();
+    this.initializeMockData();
   }
 
-  private async initializeSampleData() {
-    // Create minhaajulhudaa site if it doesn't exist
-    try {
-      const sites = await this.get<any>('sites').catch(() => []);
-      const existing = sites.find((site: any) => site.slug === 'minhaajulhudaa');
-      
-      if (!existing) {
-        await this.insert('sites', {
-          name: 'Minhaaj Ul Hudaa',
-          slug: 'minhaajulhudaa',
-          ownerEmail: 'info@minhaajulhudaa.com',
-          ownerName: 'Minhaaj Ul Hudaa',
-          description: 'Premium Hajj and Umrah services with spiritual guidance',
-          primaryColor: '#004225',
-          secondaryColor: '#ffffff',
-          contactEmail: 'info@minhaajulhudaa.com',
-          contactPhone: '+1234567890',
-          theme: 'default',
-          status: 'active'
-        });
+  private initializeMockData() {
+    // Initialize with sample data for minhaajulhudaa
+    this.mockData.sites = [
+      {
+        id: '1',
+        name: 'Minhaaj Ul Hudaa',
+        slug: 'minhaajulhudaa',
+        ownerEmail: 'info@minhaajulhudaa.com',
+        ownerName: 'Minhaaj Ul Hudaa',
+        description: 'Premium Hajj and Umrah services with spiritual guidance',
+        primaryColor: '#004225',
+        secondaryColor: '#ffffff',
+        contactEmail: 'info@minhaajulhudaa.com',
+        contactPhone: '+1234567890',
+        theme: 'default',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
-    } catch (error) {
-      console.log('Sample data initialization skipped:', error);
-    }
+    ];
+
+    // Initialize other collections as empty arrays
+    this.mockData.packages = [];
+    this.mockData.blogs = [];
+    this.mockData.events = [];
+    this.mockData.courses = [];
+    this.mockData.bookings = [];
+    this.mockData.contacts = [];
+
+    console.log('Mock data initialized:', this.mockData);
   }
 
   // Generic GET request
   public async get<T>(endpoint: string): Promise<T[]> {
     try {
-      // Mock data for development
-      if (endpoint === 'sites') {
-        return [
-          {
-            id: '1',
-            name: 'Minhaaj Ul Hudaa',
-            slug: 'minhaajulhudaa',
-            ownerEmail: 'info@minhaajulhudaa.com',
-            ownerName: 'Minhaaj Ul Hudaa',
-            description: 'Premium Hajj and Umrah services with spiritual guidance',
-            primaryColor: '#004225',
-            secondaryColor: '#ffffff',
-            contactEmail: 'info@minhaajulhudaa.com',
-            contactPhone: '+1234567890',
-            theme: 'default',
-            status: 'active',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        ] as T[];
+      console.log(`Fetching ${endpoint} from mock data`);
+      
+      // Return mock data for development
+      if (this.mockData[endpoint]) {
+        console.log(`Found ${this.mockData[endpoint].length} items for ${endpoint}`);
+        return this.mockData[endpoint] as T[];
       }
       
-      const response = await axios.get<T[]>(`${this.baseURL}/${endpoint}`);
-      return response.data;
+      console.log(`No mock data found for ${endpoint}, returning empty array`);
+      return [];
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
-      // Return empty array for development
       return [];
     }
   }
@@ -93,20 +83,19 @@ class SDK {
         id,
         createdAt,
         updatedAt
-      };
+      } as T;
 
-      const response = await axios.post<T>(`${this.baseURL}/${endpoint}`, insertData);
-      return response.data;
+      // Add to mock data
+      if (!this.mockData[endpoint]) {
+        this.mockData[endpoint] = [];
+      }
+      this.mockData[endpoint].push(insertData);
+
+      console.log(`Inserted into ${endpoint}:`, insertData);
+      return insertData;
     } catch (error) {
       console.error(`Error inserting into ${endpoint}:`, error);
-      // Return mock data for development
-      return {
-        ...this.schemas[endpoint as keyof typeof this.schemas],
-        ...data,
-        id: uuidv4(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      } as T;
+      throw error;
     }
   }
 
@@ -118,40 +107,61 @@ class SDK {
         ...data,
         updatedAt
       };
-      const response = await axios.put<T>(`${this.baseURL}/${endpoint}/${id}`, updateData);
-      return response.data;
-    } catch (error) {
-      console.error(`Error updating ${endpoint} with id ${id}:`, error);
+
+      // Update in mock data
+      if (this.mockData[endpoint]) {
+        const index = this.mockData[endpoint].findIndex((item: any) => item.id === id);
+        if (index !== -1) {
+          this.mockData[endpoint][index] = {
+            ...this.mockData[endpoint][index],
+            ...updateData
+          };
+          console.log(`Updated ${endpoint} with id ${id}:`, this.mockData[endpoint][index]);
+          return this.mockData[endpoint][index];
+        }
+      }
+
       // Return mock updated data for development
-      return {
+      const result = {
         ...data,
         id,
         updatedAt: new Date().toISOString()
       } as T;
+      
+      console.log(`Mock update for ${endpoint} with id ${id}:`, result);
+      return result;
+    } catch (error) {
+      console.error(`Error updating ${endpoint} with id ${id}:`, error);
+      throw error;
     }
   }
 
   // Generic DELETE request
   public async delete(endpoint: string, id: string): Promise<void> {
     try {
-      await axios.delete(`${this.baseURL}/${endpoint}/${id}`);
+      // Remove from mock data
+      if (this.mockData[endpoint]) {
+        this.mockData[endpoint] = this.mockData[endpoint].filter((item: any) => item.id !== id);
+        console.log(`Deleted from ${endpoint} with id ${id}`);
+      }
     } catch (error) {
       console.error(`Error deleting from ${endpoint} with id ${id}:`, error);
-      // Silently handle for development
     }
   }
 
   // Authentication methods
   public async login(email: string, password: string): Promise<string | { otpRequired: boolean }> {
     try {
-      // Mock authentication - replace with real API call
+      console.log('Mock login attempt for:', email);
       const user: User = {
         id: uuidv4(),
         email,
+        name: email.split('@')[0],
         roles: ['user']
       };
       const token = uuidv4();
       this.sessions.set(token, user);
+      console.log('Mock login successful, token:', token);
       return token;
     } catch (error) {
       console.error('Login error:', error);
@@ -161,8 +171,7 @@ class SDK {
 
   public async register(email: string, password: string, profile: any = {}): Promise<void> {
     try {
-      // Mock registration - replace with real API call
-      console.log('Registering user:', email);
+      console.log('Mock registration for:', email);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -171,10 +180,11 @@ class SDK {
 
   public async verifyLoginOTP(email: string, otp: string): Promise<string> {
     try {
-      // Mock OTP verification - replace with real API call
+      console.log('Mock OTP verification for:', email);
       const user: User = {
         id: uuidv4(),
         email,
+        name: email.split('@')[0],
         roles: ['user']
       };
       const token = uuidv4();
@@ -187,11 +197,14 @@ class SDK {
   }
 
   public getCurrentUser(token: string): User | null {
-    return this.sessions.get(token) || null;
+    const user = this.sessions.get(token) || null;
+    console.log('Getting current user for token:', token, 'User:', user);
+    return user;
   }
 
   public destroySession(token: string): void {
     this.sessions.delete(token);
+    console.log('Session destroyed for token:', token);
   }
 
   // Schema and media methods
@@ -323,7 +336,7 @@ class SDK {
 
   public async uploadMediaFile(file: File): Promise<{ secure_url: string; public_id: string }> {
     try {
-      // Mock file upload - replace with real upload service
+      console.log('Mock file upload for:', file.name);
       const fileId = uuidv4();
       const url = URL.createObjectURL(file);
       return {
@@ -438,7 +451,9 @@ class SDK {
 // Detect base URL dynamically
 const getBaseURL = () => {
   if (typeof window !== 'undefined') {
-    return window.location.origin;
+    const url = `${window.location.protocol}//${window.location.host}`;
+    console.log('SDK Base URL:', url);
+    return url;
   }
   return process.env.API_URL || 'http://localhost:3001';
 };

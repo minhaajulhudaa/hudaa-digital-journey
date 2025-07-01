@@ -56,6 +56,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
       const protocol = window.location.protocol;
       const host = window.location.host;
       setBaseUrl(`${protocol}//${host}`);
+      console.log('Base URL detected:', `${protocol}//${host}`);
     }
   }, []);
 
@@ -82,6 +83,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
       }
       
       // Otherwise, treat it as a site slug
+      console.log('Site slug detected from path:', firstPath);
       return firstPath;
     } catch (err) {
       console.error('Error parsing site slug from path:', err);
@@ -91,8 +93,10 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
 
   const getSiteBySlug = async (slug: string): Promise<Site | null> => {
     try {
+      console.log('Fetching site by slug:', slug);
       const sites = await sdk.get<Site>('sites');
       const site = sites.find(site => site.slug === slug && site.status === 'active');
+      console.log('Site found:', site);
       return site || null;
     } catch (err) {
       console.error('Error fetching site:', err);
@@ -107,6 +111,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
         status: 'active',
         theme: 'default'
       });
+      console.log('Site created:', site);
       return site;
     } catch (err) {
       console.error('Error creating site:', err);
@@ -117,6 +122,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
   const updateSite = async (siteId: string, updates: Partial<Site>): Promise<Site> => {
     try {
       const site = await sdk.update<Site>('sites', siteId, updates);
+      console.log('Site updated:', site);
       return site;
     } catch (err) {
       console.error('Error updating site:', err);
@@ -130,18 +136,23 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
         setLoading(true);
         setError(null);
         
+        console.log('Current location pathname:', location.pathname);
         const siteSlug = getSiteSlugFromPath(location.pathname);
         
         if (siteSlug) {
+          console.log('Loading site for slug:', siteSlug);
           const site = await getSiteBySlug(siteSlug);
           if (site) {
             setCurrentSite(site);
+            console.log('Current site set:', site);
           } else {
             setError(`Site "${siteSlug}" not found or inactive`);
             setCurrentSite(null);
+            console.log('Site not found:', siteSlug);
           }
         } else {
           setCurrentSite(null);
+          console.log('No site slug detected, showing main platform');
         }
       } catch (err) {
         console.error('Error loading site:', err);
