@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import sdk from '@/lib/sdk';
+import githubSDK from '@/lib/githubSDK';
 import type { User } from '@/lib/UniversalSDK';
 
 interface AuthContextType {
@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check for existing session on mount
     const token = localStorage.getItem('auth_token');
     if (token) {
-      const currentUser = sdk.getCurrentUser(token);
+      const currentUser = githubSDK.getCurrentUser(token);
       if (currentUser) {
         setUser(currentUser);
       } else {
@@ -48,12 +48,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const result = await sdk.login(email, password);
+      const result = await githubSDK.login(email, password);
       
       if (typeof result === 'string') {
         // Direct login success
         localStorage.setItem('auth_token', result);
-        const currentUser = sdk.getCurrentUser(result);
+        const currentUser = githubSDK.getCurrentUser(result);
         setUser(currentUser);
         return { success: true };
       } else if (result.otpRequired) {
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (email: string, password: string, profile: any = {}) => {
     try {
-      await sdk.register(email, password, profile);
+      await githubSDK.register(email, password, profile);
       return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
@@ -80,9 +80,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyOTP = async (email: string, otp: string) => {
     try {
-      const token = await sdk.verifyLoginOTP(email, otp);
+      const token = await githubSDK.verifyLoginOTP(email, otp);
       localStorage.setItem('auth_token', token);
-      const currentUser = sdk.getCurrentUser(token);
+      const currentUser = githubSDK.getCurrentUser(token);
       setUser(currentUser);
       return { success: true };
     } catch (error) {
@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     const token = localStorage.getItem('auth_token');
     if (token) {
-      sdk.destroySession(token);
+      githubSDK.destroySession(token);
       localStorage.removeItem('auth_token');
     }
     setUser(null);

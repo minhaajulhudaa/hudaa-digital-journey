@@ -1,6 +1,7 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import sdk from '@/lib/sdk';
+import githubSDK from '@/lib/githubSDK';
 
 interface Site {
   id: string;
@@ -94,7 +95,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
   const getSiteBySlug = async (slug: string): Promise<Site | null> => {
     try {
       console.log('Fetching site by slug:', slug);
-      const sites = await sdk.get<Site>('sites');
+      const sites = await githubSDK.get<Site>('sites');
       const site = sites.find(site => site.slug === slug && site.status === 'active');
       console.log('Site found:', site);
       return site || null;
@@ -106,10 +107,10 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
 
   const createSite = async (siteData: Partial<Site>): Promise<Site> => {
     try {
-      const site = await sdk.insert<Site>('sites', {
+      const site = await githubSDK.insert<Site>('sites', {
         ...siteData,
         status: 'active',
-        theme: 'default'
+        theme: siteData.theme || 'islamic-green'
       });
       console.log('Site created:', site);
       return site;
@@ -121,7 +122,7 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
 
   const updateSite = async (siteId: string, updates: Partial<Site>): Promise<Site> => {
     try {
-      const site = await sdk.update<Site>('sites', siteId, updates);
+      const site = await githubSDK.update<Site>('sites', siteId, updates);
       console.log('Site updated:', site);
       return site;
     } catch (err) {
