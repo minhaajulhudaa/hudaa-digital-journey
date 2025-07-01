@@ -1,16 +1,17 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, FileText, Calendar, Users, Settings, BarChart3, Palette } from 'lucide-react';
+import { Package, FileText, Calendar, Users, Settings, BarChart3, Palette, Edit3 } from 'lucide-react';
 import ThemeSelector from '@/components/ThemeSelector';
+import LiveEditor from '@/components/LiveEditor';
 
 const SiteAdmin = () => {
   const { currentSite } = useSite();
   const { currentTheme } = useTheme();
+  const [isLiveEditorOpen, setIsLiveEditorOpen] = useState(false);
 
   if (!currentSite) return null;
 
@@ -19,56 +20,69 @@ const SiteAdmin = () => {
       icon: Package,
       title: 'Packages',
       description: 'Manage travel packages and offerings',
-      color: currentTheme.accentColor
+      color: currentTheme?.accentColor || '#22c55e'
     },
     {
       icon: FileText,
       title: 'Blog Posts',
       description: 'Create and manage blog content',
-      color: currentTheme.primaryColor
+      color: currentTheme?.primaryColor || '#004225'
     },
     {
       icon: Calendar,
       title: 'Events',
       description: 'Schedule and manage events',
-      color: currentTheme.gradientFrom
+      color: currentTheme?.gradientFrom || '#16a34a'
     },
     {
       icon: Users,
       title: 'Customers',
       description: 'Manage customer relationships',
-      color: currentTheme.gradientTo
+      color: currentTheme?.gradientTo || '#0ea5e9'
     },
     {
       icon: BarChart3,
       title: 'Analytics',
       description: 'View performance metrics',
-      color: currentTheme.accentColor
+      color: currentTheme?.accentColor || '#22c55e'
     },
     {
       icon: Settings,
       title: 'Settings',
       description: 'Site configuration and preferences',
-      color: currentTheme.primaryColor
+      color: currentTheme?.primaryColor || '#004225'
     }
   ];
 
   return (
     <div 
       className="min-h-screen py-8"
-      style={{ backgroundColor: currentTheme.backgroundColor }}
+      style={{ backgroundColor: currentTheme?.backgroundColor || '#ffffff' }}
     >
       <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <h1 
-            className="text-3xl font-bold mb-2"
-            style={{ color: currentTheme.primaryColor }}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 
+              className="text-3xl font-bold mb-2"
+              style={{ color: currentTheme?.primaryColor || '#004225' }}
+            >
+              Admin Dashboard
+            </h1>
+            <p style={{ color: currentTheme?.textColor || '#1f2937' }}>
+              Manage your {currentSite.name} platform
+            </p>
+          </div>
+          
+          <Button
+            onClick={() => setIsLiveEditorOpen(true)}
+            className="flex items-center gap-2"
+            style={{ 
+              backgroundColor: currentTheme?.accentColor || '#22c55e'
+            }}
           >
-            Admin Dashboard
-          </h1>
-          <p style={{ color: currentTheme.textColor }}>
-            Manage your {currentSite.name} platform
-          </p>
+            <Edit3 className="w-4 h-4" />
+            Live Editor
+          </Button>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -88,8 +102,8 @@ const SiteAdmin = () => {
                     key={section.title} 
                     className="hover:shadow-lg transition-shadow cursor-pointer"
                     style={{ 
-                      backgroundColor: currentTheme.cardColor,
-                      borderColor: currentTheme.borderColor
+                      backgroundColor: currentTheme?.cardColor || '#ffffff',
+                      borderColor: currentTheme?.borderColor || '#e5e7eb'
                     }}
                   >
                     <CardHeader className="pb-3">
@@ -100,7 +114,7 @@ const SiteAdmin = () => {
                         />
                         <CardTitle 
                           className="text-lg"
-                          style={{ color: currentTheme.textColor }}
+                          style={{ color: currentTheme?.textColor || '#1f2937' }}
                         >
                           {section.title}
                         </CardTitle>
@@ -109,7 +123,7 @@ const SiteAdmin = () => {
                     <CardContent>
                       <p 
                         className="text-sm mb-4"
-                        style={{ color: `${currentTheme.textColor}80` }}
+                        style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}
                       >
                         {section.description}
                       </p>
@@ -118,8 +132,8 @@ const SiteAdmin = () => {
                         size="sm" 
                         className="w-full"
                         style={{ 
-                          borderColor: currentTheme.borderColor,
-                          color: currentTheme.textColor
+                          borderColor: currentTheme?.borderColor || '#e5e7eb',
+                          color: currentTheme?.textColor || '#1f2937'
                         }}
                       >
                         Manage
@@ -131,11 +145,11 @@ const SiteAdmin = () => {
             </div>
 
             <Card style={{ 
-              backgroundColor: currentTheme.cardColor,
-              borderColor: currentTheme.borderColor
+              backgroundColor: currentTheme?.cardColor || '#ffffff',
+              borderColor: currentTheme?.borderColor || '#e5e7eb'
             }}>
               <CardHeader>
-                <CardTitle style={{ color: currentTheme.textColor }}>
+                <CardTitle style={{ color: currentTheme?.textColor || '#1f2937' }}>
                   Quick Stats
                 </CardTitle>
               </CardHeader>
@@ -144,13 +158,13 @@ const SiteAdmin = () => {
                   <div className="text-center">
                     <div 
                       className="text-2xl font-bold"
-                      style={{ color: currentTheme.accentColor }}
+                      style={{ color: currentTheme?.accentColor || '#22c55e' }}
                     >
                       0
                     </div>
                     <div 
                       className="text-sm"
-                      style={{ color: `${currentTheme.textColor}80` }}
+                      style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}
                     >
                       Active Packages
                     </div>
@@ -158,13 +172,13 @@ const SiteAdmin = () => {
                   <div className="text-center">
                     <div 
                       className="text-2xl font-bold"
-                      style={{ color: currentTheme.primaryColor }}
+                      style={{ color: currentTheme?.primaryColor || '#004225' }}
                     >
                       0
                     </div>
                     <div 
                       className="text-sm"
-                      style={{ color: `${currentTheme.textColor}80` }}
+                      style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}
                     >
                       Blog Posts
                     </div>
@@ -172,13 +186,13 @@ const SiteAdmin = () => {
                   <div className="text-center">
                     <div 
                       className="text-2xl font-bold"
-                      style={{ color: currentTheme.gradientFrom }}
+                      style={{ color: currentTheme?.gradientFrom || '#16a34a' }}
                     >
                       0
                     </div>
                     <div 
                       className="text-sm"
-                      style={{ color: `${currentTheme.textColor}80` }}
+                      style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}
                     >
                       Upcoming Events
                     </div>
@@ -186,13 +200,13 @@ const SiteAdmin = () => {
                   <div className="text-center">
                     <div 
                       className="text-2xl font-bold"
-                      style={{ color: currentTheme.gradientTo }}
+                      style={{ color: currentTheme?.gradientTo || '#0ea5e9' }}
                     >
                       0
                     </div>
                     <div 
                       className="text-sm"
-                      style={{ color: `${currentTheme.textColor}80` }}
+                      style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}
                     >
                       Total Customers
                     </div>
@@ -205,17 +219,26 @@ const SiteAdmin = () => {
           <TabsContent value="content">
             <div className="space-y-6">
               <Card style={{ 
-                backgroundColor: currentTheme.cardColor,
-                borderColor: currentTheme.borderColor
+                backgroundColor: currentTheme?.cardColor || '#ffffff',
+                borderColor: currentTheme?.borderColor || '#e5e7eb'
               }}>
                 <CardHeader>
-                  <CardTitle style={{ color: currentTheme.textColor }}>
-                    Content Management
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle style={{ color: currentTheme?.textColor || '#1f2937' }}>
+                      Content Management
+                    </CardTitle>
+                    <Button
+                      onClick={() => setIsLiveEditorOpen(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      Edit Content
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p style={{ color: `${currentTheme.textColor}80` }}>
-                    Manage your site's content including packages, blog posts, events, and more.
+                  <p style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}>
+                    Use the live editor to modify your site's content, sections, and layout in real-time.
                   </p>
                 </CardContent>
               </Card>
@@ -229,16 +252,16 @@ const SiteAdmin = () => {
           <TabsContent value="settings">
             <div className="space-y-6">
               <Card style={{ 
-                backgroundColor: currentTheme.cardColor,
-                borderColor: currentTheme.borderColor
+                backgroundColor: currentTheme?.cardColor || '#ffffff',
+                borderColor: currentTheme?.borderColor || '#e5e7eb'
               }}>
                 <CardHeader>
-                  <CardTitle style={{ color: currentTheme.textColor }}>
+                  <CardTitle style={{ color: currentTheme?.textColor || '#1f2937' }}>
                     Site Settings
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p style={{ color: `${currentTheme.textColor}80` }}>
+                  <p style={{ color: `${currentTheme?.textColor || '#1f2937'}80` }}>
                     Configure your site settings, contact information, and other preferences.
                   </p>
                 </CardContent>
@@ -247,6 +270,11 @@ const SiteAdmin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <LiveEditor 
+        isOpen={isLiveEditorOpen}
+        onClose={() => setIsLiveEditorOpen(false)}
+      />
     </div>
   );
 };

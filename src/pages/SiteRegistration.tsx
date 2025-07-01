@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,9 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useSite } from '@/hooks/useSite';
+import { useTheme } from '@/hooks/useTheme';
+import ThemeSelector from '@/components/ThemeSelector';
 import { Plane, Globe, Users, Zap, Check, ArrowRight } from 'lucide-react';
 
 const SiteRegistration = () => {
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -22,12 +24,14 @@ const SiteRegistration = () => {
     contactPhone: '',
     primaryColor: '#004225',
     currency: 'USD',
-    timezone: 'UTC'
+    timezone: 'UTC',
+    theme: 'islamic-luxury'
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { createSite } = useSite();
+  const { availableThemes } = useTheme();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -49,18 +53,31 @@ const SiteRegistration = () => {
     }
   };
 
+  const handleNextStep = () => {
+    if (step === 1) {
+      if (!formData.name || !formData.slug || !formData.ownerEmail) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
+  const handlePrevStep = () => {
+    setStep(step - 1);
+  };
+
+  const handleThemeSelect = (themeId: string) => {
+    setFormData(prev => ({ ...prev, theme: themeId }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.slug || !formData.ownerEmail) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -95,7 +112,7 @@ const SiteRegistration = () => {
     "Payment integration ready",
     "SEO optimized pages",
     "Mobile responsive design",
-    "24/7 technical support"
+    "Live content editing tools"
   ];
 
   return (
@@ -159,141 +176,144 @@ const SiteRegistration = () => {
                 Create Your Platform
               </CardTitle>
               <p className="text-center text-gray-600">
-                Fill in the details below to get started
+                Step {step} of 3: {step === 1 ? 'Basic Information' : step === 2 ? 'Choose Your Theme' : 'Review & Create'}
               </p>
+              
+              {/* Progress bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div 
+                  className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(step / 3) * 100}%` }}
+                />
+              </div>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+              {step === 1 && (
+                <div className="space-y-6">
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Company Name *</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        placeholder="Your Travel Company"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="slug">URL Slug *</Label>
+                      <Input
+                        id="slug"
+                        type="text"
+                        value={formData.slug}
+                        onChange={(e) => handleInputChange('slug', e.target.value)}
+                        placeholder="your-company"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Your site will be: travelwith.com/{formData.slug || 'your-company'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="ownerEmail">Owner Email *</Label>
+                      <Input
+                        id="ownerEmail"
+                        type="email"
+                        value={formData.ownerEmail}
+                        onChange={(e) => handleInputChange('ownerEmail', e.target.value)}
+                        placeholder="owner@company.com"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="ownerName">Owner Name</Label>
+                      <Input
+                        id="ownerName"
+                        type="text"
+                        value={formData.ownerName}
+                        onChange={(e) => handleInputChange('ownerName', e.target.value)}
+                        placeholder="John Doe"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="name">Company Name *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Your Travel Company"
-                      required
+                    <Label htmlFor="description">Company Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      placeholder="Brief description of your travel services..."
+                      rows={3}
                     />
                   </div>
+
+                  <Button onClick={handleNextStep} className="w-full">
+                    Next: Choose Theme
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="space-y-6">
                   <div>
-                    <Label htmlFor="slug">URL Slug *</Label>
-                    <Input
-                      id="slug"
-                      type="text"
-                      value={formData.slug}
-                      onChange={(e) => handleInputChange('slug', e.target.value)}
-                      placeholder="your-company"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Your site will be: travelwith.com/{formData.slug || 'your-company'}
+                    <h3 className="text-lg font-semibold mb-4">Choose Your Theme</h3>
+                    <p className="text-gray-600 mb-6">
+                      Select a theme that best represents your brand and travel style
                     </p>
                   </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="ownerEmail">Owner Email *</Label>
-                    <Input
-                      id="ownerEmail"
-                      type="email"
-                      value={formData.ownerEmail}
-                      onChange={(e) => handleInputChange('ownerEmail', e.target.value)}
-                      placeholder="owner@company.com"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="ownerName">Owner Name</Label>
-                    <Input
-                      id="ownerName"
-                      type="text"
-                      value={formData.ownerName}
-                      onChange={(e) => handleInputChange('ownerName', e.target.value)}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Company Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Brief description of your travel services..."
-                    rows={3}
+                  
+                  <ThemeSelector 
+                    showPreview={true}
+                    onThemeSelect={handleThemeSelect}
                   />
-                </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactEmail">Contact Email</Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      value={formData.contactEmail}
-                      onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                      placeholder="info@company.com"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contactPhone">Contact Phone</Label>
-                    <Input
-                      id="contactPhone"
-                      type="tel"
-                      value={formData.contactPhone}
-                      onChange={(e) => handleInputChange('contactPhone', e.target.value)}
-                      placeholder="+1234567890"
-                    />
+                  <div className="flex gap-4">
+                    <Button variant="outline" onClick={handlePrevStep} className="flex-1">
+                      Back
+                    </Button>
+                    <Button onClick={handleNextStep} className="flex-1">
+                      Next: Review
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                   </div>
                 </div>
+              )}
 
-                <div className="grid md:grid-cols-2 gap-4">
+              {step === 3 && (
+                <div className="space-y-6">
                   <div>
-                    <Label htmlFor="currency">Currency</Label>
-                    <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="USD">USD - US Dollar</SelectItem>
-                        <SelectItem value="EUR">EUR - Euro</SelectItem>
-                        <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                        <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
-                        <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
-                        <SelectItem value="SAR">SAR - Saudi Riyal</SelectItem>
-                        <SelectItem value="AED">AED - UAE Dirham</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <h3 className="text-lg font-semibold mb-4">Review Your Settings</h3>
+                    <div className="space-y-3 text-sm">
+                      <div><strong>Company:</strong> {formData.name}</div>
+                      <div><strong>URL:</strong> /{formData.slug}</div>
+                      <div><strong>Owner:</strong> {formData.ownerEmail}</div>
+                      <div><strong>Selected Theme:</strong> {availableThemes.find(t => t.id === formData.theme)?.name || 'Default'}</div>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="primaryColor">Brand Color</Label>
-                    <Input
-                      id="primaryColor"
-                      type="color"
-                      value={formData.primaryColor}
-                      onChange={(e) => handleInputChange('primaryColor', e.target.value)}
-                    />
+
+                  <div className="flex gap-4">
+                    <Button variant="outline" onClick={handlePrevStep} className="flex-1">
+                      Back
+                    </Button>
+                    <Button 
+                      onClick={handleSubmit}
+                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      disabled={loading}
+                    >
+                      {loading ? 'Creating...' : 'Create My Platform'}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                   </div>
                 </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-green-600 hover:bg-green-700 text-lg py-6"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    'Creating Your Platform...'
-                  ) : (
-                    <>
-                      Create My Travel Platform
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </form>
+              )}
             </CardContent>
           </Card>
         </div>
