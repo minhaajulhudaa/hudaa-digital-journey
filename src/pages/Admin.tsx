@@ -93,15 +93,15 @@ const Admin = () => {
         sdk.get('newsletter')
       ]);
 
-      setPackages(packagesData);
-      setBlogs(blogsData);
-      setCourses(coursesData);
-      setEvents(eventsData);
-      setKnowledgeBase(kbData);
-      setTestimonials(testimonialsData);
-      setBookings(bookingsData);
-      setUsers(usersData);
-      setNewsletter(newsletterData);
+      setPackages(packagesData as ContentItem[]);
+      setBlogs(blogsData as ContentItem[]);
+      setCourses(coursesData as ContentItem[]);
+      setEvents(eventsData as ContentItem[]);
+      setKnowledgeBase(kbData as ContentItem[]);
+      setTestimonials(testimonialsData as ContentItem[]);
+      setBookings(bookingsData as ContentItem[]);
+      setUsers(usersData as ContentItem[]);
+      setNewsletter(newsletterData as ContentItem[]);
 
       setStats({
         packages: packagesData.length,

@@ -342,7 +342,7 @@ const CMSEditor: React.FC<CMSEditorProps> = ({ collection, item, onSave, onCance
                     const isRequired = requiredFields.includes(fieldName);
                     return (
                       <div key={fieldName} className="col-span-1">
-                        {renderField(fieldName, fieldType, isRequired)}
+                        {renderField(fieldName, fieldType as string, isRequired)}
                       </div>
                     );
                   })}
