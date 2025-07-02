@@ -150,6 +150,8 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
         setError(null);
         
         console.log('Current location pathname:', location.pathname);
+        console.log('Full URL:', window.location.href);
+        console.log('Current hostname:', window.location.hostname);
         const siteSlug = getSiteSlugFromPath(location.pathname);
         
         if (siteSlug) {
