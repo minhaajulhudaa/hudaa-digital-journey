@@ -107,11 +107,23 @@ export const SiteProvider = ({ children }: SiteProviderProps) => {
 
   const createSite = async (siteData: Partial<Site>): Promise<Site> => {
     try {
-      const site = await githubSDK.insert<Site>('sites', {
-        ...siteData,
-        status: 'active',
-        theme: siteData.theme || 'islamic-green'
-      });
+      const siteToCreate = {
+        id: siteData.id || `site-${Date.now()}`,
+        name: siteData.name || 'Untitled Site',
+        slug: siteData.slug || 'untitled',
+        ownerEmail: siteData.ownerEmail || '',
+        ownerName: siteData.ownerName,
+        description: siteData.description,
+        logo: siteData.logo,
+        primaryColor: siteData.primaryColor,
+        secondaryColor: siteData.secondaryColor,
+        contactEmail: siteData.contactEmail,
+        contactPhone: siteData.contactPhone,
+        theme: siteData.theme || 'islamic-green',
+        status: 'active'
+      };
+      
+      const site = await githubSDK.insert<Site>('sites', siteToCreate);
       console.log('Site created:', site);
       return site;
     } catch (err) {

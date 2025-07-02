@@ -1,8 +1,11 @@
+
 import UniversalSDK from './UniversalSDK';
 import { Theme, defaultSections, enhancedThemes } from '@/types/theme';
 import { additionalThemes } from './additionalThemes';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
-interface GitHubOptions {
+interface GitHubSDKConfig {
   baseURL: string;
   headers: {
     Authorization: string;
@@ -12,8 +15,15 @@ interface GitHubOptions {
 }
 
 class GitHubSDK extends UniversalSDK {
-  constructor(options: GitHubOptions) {
-    super(options);
+  private api: any;
+
+  constructor(config: GitHubSDKConfig) {
+    // Initialize parent with dummy values since we override the methods
+    super({ owner: '', repo: '', token: '' });
+    this.api = axios.create({
+      baseURL: config.baseURL,
+      headers: config.headers
+    });
   }
 
   async get<T>(endpoint: string): Promise<T[]> {
@@ -39,41 +49,48 @@ class GitHubSDK extends UniversalSDK {
     }
   }
 
-  async insert<T extends { id?: string }>(endpoint: string, item: T): Promise<T> {
+  async insert<T = any>(collection: string, item: Partial<T>): Promise<T & { id: string; uid: string; }> {
     try {
-      const items = await this.get<T>(endpoint);
-      const updatedItems = [...(items as any[]), item];
-      await this.updateContent(endpoint, updatedItems);
-      return item;
+      const items = await this.get<T>(collection);
+      const newItem = {
+        ...item,
+        id: item.id || uuidv4(),
+        uid: uuidv4()
+      } as T & { id: string; uid: string; };
+      
+      const updatedItems = [...(items as any[]), newItem];
+      await this.updateContent(collection, updatedItems);
+      return newItem;
     } catch (error) {
-      console.error(`Error inserting item into ${endpoint}:`, error);
+      console.error(`Error inserting item into ${collection}:`, error);
       throw error;
     }
   }
 
-  async update<T extends { id: string }>(endpoint: string, itemId: string, updates: Partial<T>): Promise<T | null> {
+  async update<T = any>(collection: string, key: string, updates: Partial<T>): Promise<T> {
     try {
-      const items = await this.get<T>(endpoint);
+      const items = await this.get<T>(collection);
       const updatedItems = (items as any[]).map(item =>
-        item.id === itemId ? { ...item, ...updates } : item
+        item.id === key ? { ...item, ...updates } : item
       );
-      await this.updateContent(endpoint, updatedItems);
-      return updatedItems.find(item => item.id === itemId) || null;
+      await this.updateContent(collection, updatedItems);
+      const updatedItem = updatedItems.find(item => item.id === key);
+      if (!updatedItem) throw new Error(`Item with key ${key} not found`);
+      return updatedItem;
     } catch (error) {
-      console.error(`Error updating item in ${endpoint}:`, error);
-      return null;
+      console.error(`Error updating item in ${collection}:`, error);
+      throw error;
     }
   }
 
-  async delete(endpoint: string, itemId: string): Promise<boolean> {
+  async delete<T = any>(collection: string, key: string): Promise<void> {
     try {
-      const items = await this.get(endpoint);
-      const updatedItems = (items as any[]).filter(item => item.id !== itemId);
-      await this.updateContent(endpoint, updatedItems);
-      return true;
+      const items = await this.get(collection);
+      const updatedItems = (items as any[]).filter(item => item.id !== key);
+      await this.updateContent(collection, updatedItems);
     } catch (error) {
-      console.error(`Error deleting item from ${endpoint}:`, error);
-      return false;
+      console.error(`Error deleting item from ${collection}:`, error);
+      throw error;
     }
   }
 
@@ -117,7 +134,24 @@ export const initializeThemes = async () => {
       
       const themesToCreate = allThemeData.map((themeData, index) => ({
         id: `theme-${index + 1}`,
-        ...themeData,
+        name: themeData.name || 'Unnamed Theme',
+        description: themeData.description || '',
+        category: themeData.category || 'general',
+        primaryColor: themeData.primaryColor || '#000000',
+        secondaryColor: themeData.secondaryColor || '#ffffff',
+        accentColor: themeData.accentColor || '#0066cc',
+        backgroundColor: themeData.backgroundColor || '#ffffff',
+        textColor: themeData.textColor || '#000000',
+        cardColor: themeData.cardColor || '#ffffff',
+        borderColor: themeData.borderColor || '#e5e7eb',
+        gradientFrom: themeData.gradientFrom || themeData.primaryColor || '#000000',
+        gradientTo: themeData.gradientTo || themeData.accentColor || '#0066cc',
+        fontFamily: themeData.fontFamily || 'Inter',
+        headerStyle: themeData.headerStyle || 'modern',
+        footerStyle: themeData.footerStyle || 'clean',
+        buttonStyle: themeData.buttonStyle || 'rounded',
+        cardStyle: themeData.cardStyle || 'shadow',
+        layout: themeData.layout || 'modern',
         sections: defaultSections,
         status: 'active' as const,
         isDefault: index === 0,

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { useSite } from '@/hooks/useSite';
@@ -8,7 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Eye, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const ThemeSelector = () => {
+interface ThemeSelectorProps {
+  onThemeSelect?: (themeId: string) => void;
+  selectedThemeId?: string;
+}
+
+const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onThemeSelect, selectedThemeId }) => {
   const { currentTheme, availableThemes, applyTheme, loading } = useTheme();
   const { currentSite } = useSite();
   const { toast } = useToast();
@@ -39,7 +43,11 @@ const ThemeSelector = () => {
   const handleApplyTheme = async (themeId: string) => {
     setApplying(themeId);
     try {
-      await applyTheme(themeId);
+      if (onThemeSelect) {
+        onThemeSelect(themeId);
+      } else {
+        await applyTheme(themeId);
+      }
       setPreviewTheme(null);
       toast({
         title: "Theme Applied",
@@ -56,6 +64,7 @@ const ThemeSelector = () => {
     }
   };
 
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -66,6 +75,8 @@ const ThemeSelector = () => {
       </div>
     );
   }
+
+  const activeThemeId = selectedThemeId || currentTheme?.id;
 
   return (
     <div className="space-y-6">
@@ -82,7 +93,7 @@ const ThemeSelector = () => {
           <Card 
             key={theme.id} 
             className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${
-              currentTheme?.id === theme.id ? 'ring-2 ring-blue-500' : ''
+              activeThemeId === theme.id ? 'ring-2 ring-blue-500' : ''
             } ${previewTheme === theme.id ? 'ring-2 ring-orange-500' : ''}`}
           >
             <div 
@@ -92,7 +103,7 @@ const ThemeSelector = () => {
               }}
             >
               <div className="absolute top-2 right-2">
-                {currentTheme?.id === theme.id && (
+                {activeThemeId === theme.id && (
                   <Badge className="bg-white text-green-600">
                     <Check className="w-3 h-3 mr-1" />
                     Active
@@ -151,11 +162,11 @@ const ThemeSelector = () => {
                   onClick={() => handleApplyTheme(theme.id)}
                   size="sm"
                   className="flex-1"
-                  disabled={currentTheme?.id === theme.id || applying === theme.id}
+                  disabled={activeThemeId === theme.id || applying === theme.id}
                   style={{ backgroundColor: theme.accentColor }}
                 >
                   {applying === theme.id ? 'Applying...' : 
-                   currentTheme?.id === theme.id ? 'Active' : 'Select'}
+                   activeThemeId === theme.id ? 'Active' : 'Select'}
                 </Button>
               </div>
             </CardContent>

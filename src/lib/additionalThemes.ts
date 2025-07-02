@@ -16,7 +16,11 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     gradientTo: '#00a8cc',
     fontFamily: 'Poppins',
     category: 'modern',
-    preview: '/api/placeholder/400/300'
+    headerStyle: 'modern',
+    footerStyle: 'clean',
+    buttonStyle: 'rounded',
+    cardStyle: 'shadow',
+    layout: 'modern'
   },
   {
     name: 'Sunset Glow',
@@ -32,7 +36,11 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     gradientTo: '#fd7e14',
     fontFamily: 'Roboto',
     category: 'warm',
-    preview: '/api/placeholder/400/300'
+    headerStyle: 'elegant',
+    footerStyle: 'warm',
+    buttonStyle: 'rounded',
+    cardStyle: 'elevated',
+    layout: 'traditional'
   },
   {
     name: 'Forest Explorer',
@@ -48,7 +56,11 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     gradientTo: '#558b2f',
     fontFamily: 'Inter',
     category: 'nature',
-    preview: '/api/placeholder/400/300'
+    headerStyle: 'bold',
+    footerStyle: 'dark',
+    buttonStyle: 'square',
+    cardStyle: 'border',
+    layout: 'creative'
   },
   {
     name: 'Urban Chic',
@@ -64,7 +76,11 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     gradientTo: '#546e7a',
     fontFamily: 'Roboto',
     category: 'modern',
-    preview: '/api/placeholder/400/300'
+    headerStyle: 'minimal',
+    footerStyle: 'clean',
+    buttonStyle: 'square',
+    cardStyle: 'flat',
+    layout: 'minimal'
   },
   {
     name: 'Royal Elegance',
@@ -80,6 +96,10 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     gradientTo: '#7b1fa2',
     fontFamily: 'Playfair Display',
     category: 'luxury',
-    preview: '/api/placeholder/400/300'
+    headerStyle: 'elegant',
+    footerStyle: 'luxury',
+    buttonStyle: 'pill',
+    cardStyle: 'glass',
+    layout: 'luxury'
   }
 ];

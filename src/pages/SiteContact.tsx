@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
@@ -33,32 +32,31 @@ const SiteContact = () => {
     setLoading(true);
 
     try {
-      await sdk.insert('contact_messages', {
-        ...formData,
-        siteId: currentSite.id,
-        siteName: currentSite.name,
-        submittedAt: new Date().toISOString(),
-        status: 'new'
-      });
+      const messageData = {
+        id: `message-${Date.now()}`,
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        siteName: currentSite?.name,
+        siteSlug: currentSite?.slug,
+        createdAt: new Date().toISOString(),
+        status: 'unread'
+      };
+
+      await sdk.insert('messages', messageData);
 
       toast({
         title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you soon."
+        description: "Thank you for your message. We'll get back to you soon."
       });
 
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        inquiryType: 'general'
-      });
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
-      console.error('Contact form error:', error);
+      console.error('Error sending message:', error);
       toast({
-        title: "Failed to Send",
-        description: "Please try again or contact us directly.",
+        title: "Error",
+        description: "Failed to send message. Please try again.",
         variant: "destructive"
       });
     } finally {
