@@ -1,84 +1,249 @@
 
 import React from 'react';
 import { useSite } from '@/hooks/useSite';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, Mail, Globe } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { MapPin, Phone, Mail, Users, Award, Clock, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const SiteAbout = () => {
   const { currentSite } = useSite();
+  const { currentTheme } = useTheme();
 
-  if (!currentSite) return null;
+  if (!currentSite || !currentTheme) return null;
+
+  const features = [
+    {
+      icon: Award,
+      title: "Professional Excellence",
+      description: "Years of experience delivering exceptional travel experiences worldwide."
+    },
+    {
+      icon: Shield,
+      title: "Trusted & Secure",
+      description: "Your safety and security are our top priorities in every journey."
+    },
+    {
+      icon: Users,
+      title: "Expert Team",
+      description: "Dedicated professionals committed to making your travel dreams come true."
+    },
+    {
+      icon: Clock,
+      title: "24/7 Support",
+      description: "Round-the-clock assistance throughout your entire travel experience."
+    }
+  ];
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            About {currentSite.name}
-          </h1>
-          {currentSite.description && (
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              {currentSite.description}
-            </p>
-          )}
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Our Mission</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                We are dedicated to providing exceptional travel experiences that create lasting memories. 
-                Our team of experts ensures every journey is carefully planned and executed with the highest standards of service.
+    <div className="min-h-screen" style={{ backgroundColor: currentTheme.backgroundColor }}>
+      {/* Hero Section */}
+      <section 
+        className="py-20 text-white relative overflow-hidden"
+        style={{ 
+          background: `linear-gradient(135deg, ${currentTheme.primaryColor}, ${currentTheme.gradientTo || currentTheme.accentColor})` 
+        }}
+      >
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-5xl font-bold mb-6">
+              About {currentSite.name}
+            </h1>
+            {currentSite.description && (
+              <p className="text-xl mb-8 opacity-90">
+                {currentSite.description}
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Our Values</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-gray-600">
-                <li>• Excellence in service delivery</li>
-                <li>• Authentic cultural experiences</li>
-                <li>• Safety and comfort of our travelers</li>
-                <li>• Sustainable and responsible tourism</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Contact Information</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {currentSite.contactEmail && (
-              <div className="flex flex-col items-center">
-                <Mail className="w-8 h-8 text-green-600 mb-2" />
-                <p className="text-gray-600">{currentSite.contactEmail}</p>
-              </div>
             )}
-            {currentSite.contactPhone && (
-              <div className="flex flex-col items-center">
-                <Phone className="w-8 h-8 text-blue-600 mb-2" />
-                <p className="text-gray-600">{currentSite.contactPhone}</p>
-              </div>
-            )}
-            <div className="flex flex-col items-center">
-              <Globe className="w-8 h-8 text-purple-600 mb-2" />
-              <p className="text-gray-600">travelwith.com/{currentSite.slug}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to={`/${currentSite.slug}/packages`}>
+                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                  Explore Our Packages
+                </Button>
+              </Link>
+              <Link to={`/${currentSite.slug}/contact`}>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
+                  Get In Touch
+                </Button>
+              </Link>
             </div>
-            {currentSite.ownerEmail && (
-              <div className="flex flex-col items-center">
-                <Mail className="w-8 h-8 text-orange-600 mb-2" />
-                <p className="text-gray-600 text-sm">Owner: {currentSite.ownerEmail}</p>
-              </div>
-            )}
           </div>
         </div>
-      </div>
+        <div className="absolute inset-0 bg-black/20"></div>
+      </section>
+
+      {/* Story Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <Card style={{ backgroundColor: currentTheme.cardColor, borderColor: currentTheme.borderColor }}>
+              <CardContent className="p-12">
+                <h2 
+                  className="text-3xl font-bold mb-8 text-center"
+                  style={{ color: currentTheme.primaryColor }}
+                >
+                  Our Story
+                </h2>
+                <div className="prose max-w-none" style={{ color: currentTheme.textColor }}>
+                  <p className="text-lg leading-relaxed mb-6">
+                    Welcome to {currentSite.name}, where your journey begins with a dream and transforms into an unforgettable reality. 
+                    Founded with a passion for creating meaningful travel experiences, we have been serving travelers from around the world 
+                    with dedication, expertise, and genuine care.
+                  </p>
+                  <p className="text-lg leading-relaxed mb-6">
+                    Our commitment goes beyond just booking trips – we craft experiences that touch your heart, broaden your perspective, 
+                    and create lasting memories. Every destination we offer, every service we provide, is carefully curated to ensure 
+                    your journey exceeds expectations.
+                  </p>
+                  <p className="text-lg leading-relaxed">
+                    Whether you're seeking spiritual enlightenment, cultural immersion, or simply a peaceful getaway, 
+                    {currentSite.name} is your trusted companion every step of the way.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16" style={{ backgroundColor: `${currentTheme.accentColor}10` }}>
+        <div className="container mx-auto px-4">
+          <h2 
+            className="text-3xl font-bold text-center mb-12"
+            style={{ color: currentTheme.primaryColor }}
+          >
+            Why Choose Us
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <Card 
+                  key={index} 
+                  className="text-center hover:shadow-lg transition-all duration-300"
+                  style={{ backgroundColor: currentTheme.cardColor, borderColor: currentTheme.borderColor }}
+                >
+                  <CardContent className="p-8">
+                    <div 
+                      className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+                      style={{ backgroundColor: `${currentTheme.accentColor}20` }}
+                    >
+                      <IconComponent 
+                        className="w-8 h-8"
+                        style={{ color: currentTheme.accentColor }}
+                      />
+                    </div>
+                    <h3 
+                      className="font-semibold text-xl mb-4"
+                      style={{ color: currentTheme.primaryColor }}
+                    >
+                      {feature.title}
+                    </h3>
+                    <p style={{ color: currentTheme.textColor }}>
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Info Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 
+              className="text-3xl font-bold text-center mb-12"
+              style={{ color: currentTheme.primaryColor }}
+            >
+              Get In Touch
+            </h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {currentSite.contactEmail && (
+                <Card 
+                  className="text-center hover:shadow-lg transition-shadow"
+                  style={{ backgroundColor: currentTheme.cardColor, borderColor: currentTheme.borderColor }}
+                >
+                  <CardContent className="p-8">
+                    <Mail 
+                      className="w-12 h-12 mx-auto mb-4"
+                      style={{ color: currentTheme.accentColor }}
+                    />
+                    <h3 
+                      className="font-semibold text-lg mb-2"
+                      style={{ color: currentTheme.primaryColor }}
+                    >
+                      Email Us
+                    </h3>
+                    <p style={{ color: currentTheme.textColor }}>
+                      {currentSite.contactEmail}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {currentSite.contactPhone && (
+                <Card 
+                  className="text-center hover:shadow-lg transition-shadow"
+                  style={{ backgroundColor: currentTheme.cardColor, borderColor: currentTheme.borderColor }}
+                >
+                  <CardContent className="p-8">
+                    <Phone 
+                      className="w-12 h-12 mx-auto mb-4"
+                      style={{ color: currentTheme.accentColor }}
+                    />
+                    <h3 
+                      className="font-semibold text-lg mb-2"
+                      style={{ color: currentTheme.primaryColor }}
+                    >
+                      Call Us
+                    </h3>
+                    <p style={{ color: currentTheme.textColor }}>
+                      {currentSite.contactPhone}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card 
+                className="text-center hover:shadow-lg transition-shadow"
+                style={{ backgroundColor: currentTheme.cardColor, borderColor: currentTheme.borderColor }}
+              >
+                <CardContent className="p-8">
+                  <MapPin 
+                    className="w-12 h-12 mx-auto mb-4"
+                    style={{ color: currentTheme.accentColor }}
+                  />
+                  <h3 
+                    className="font-semibold text-lg mb-2"
+                    style={{ color: currentTheme.primaryColor }}
+                  >
+                    Visit Us
+                  </h3>
+                  <p style={{ color: currentTheme.textColor }}>
+                    Contact us for office locations
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center mt-12">
+              <Link to={`/${currentSite.slug}/contact`}>
+                <Button 
+                  size="lg"
+                  style={{ backgroundColor: currentTheme.accentColor }}
+                  className="text-white"
+                >
+                  Send Us a Message
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

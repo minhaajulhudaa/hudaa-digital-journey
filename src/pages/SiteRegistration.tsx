@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import ThemeSelector from '@/components/ThemeSelector';
-import { Plane, Globe, Users, Zap, Check, ArrowRight } from 'lucide-react';
+import { Plane, Globe, Users, Zap, Check, ArrowRight, Shield } from 'lucide-react';
+import sdk from '@/lib/sdk';
 
 const SiteRegistration = () => {
   const [step, setStep] = useState(1);
@@ -19,6 +21,7 @@ const SiteRegistration = () => {
     slug: '',
     ownerEmail: '',
     ownerName: '',
+    ownerPassword: '',
     description: '',
     contactEmail: '',
     contactPhone: '',
@@ -51,14 +54,31 @@ const SiteRegistration = () => {
         slug
       }));
     }
+
+    // Auto-fill contact email from owner email
+    if (field === 'ownerEmail' && !formData.contactEmail) {
+      setFormData(prev => ({
+        ...prev,
+        contactEmail: value
+      }));
+    }
   };
 
   const handleNextStep = () => {
     if (step === 1) {
-      if (!formData.name || !formData.slug || !formData.ownerEmail) {
+      if (!formData.name || !formData.slug || !formData.ownerEmail || !formData.ownerPassword) {
         toast({
           title: "Validation Error",
-          description: "Please fill in all required fields",
+          description: "Please fill in all required fields including admin password",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (formData.ownerPassword.length < 6) {
+        toast({
+          title: "Password Error",
+          description: "Admin password must be at least 6 characters long",
           variant: "destructive"
         });
         return;
@@ -92,15 +112,31 @@ const SiteRegistration = () => {
 
     try {
       console.log('Creating site with data:', formData);
+      
+      // Create the site
       const site = await createSite(formData);
+      
+      // Create admin user account
+      const adminUser = {
+        email: formData.ownerEmail,
+        password: formData.ownerPassword,
+        name: formData.ownerName || 'Site Admin',
+        role: 'admin',
+        siteId: site.id,
+        siteName: site.name,
+        createdAt: new Date().toISOString(),
+        isActive: true
+      };
+
+      await sdk.insert('users', adminUser);
       
       toast({
         title: "Success!",
-        description: `Your travel platform "${formData.name}" has been created successfully!`
+        description: `Your travel platform "${formData.name}" has been created successfully! You can now login to manage your site.`
       });
 
-      // Redirect to the new site
-      navigate(`/${site.slug}`);
+      // Redirect to the new site's login page
+      navigate(`/${site.slug}/auth`);
     } catch (error) {
       console.error('Error creating site:', error);
       toast({
@@ -230,27 +266,48 @@ const SiteRegistration = () => {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="ownerEmail">Owner Email *</Label>
-                      <Input
-                        id="ownerEmail"
-                        type="email"
-                        value={formData.ownerEmail}
-                        onChange={(e) => handleInputChange('ownerEmail', e.target.value)}
-                        placeholder="owner@company.com"
-                        required
-                      />
+                  <div className="border-t pt-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Shield className="w-5 h-5 text-green-600" />
+                      <h3 className="font-semibold text-gray-900">Admin Account Setup</h3>
                     </div>
-                    <div>
-                      <Label htmlFor="ownerName">Owner Name</Label>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="ownerEmail">Admin Email *</Label>
+                        <Input
+                          id="ownerEmail"
+                          type="email"
+                          value={formData.ownerEmail}
+                          onChange={(e) => handleInputChange('ownerEmail', e.target.value)}
+                          placeholder="admin@company.com"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="ownerName">Admin Name</Label>
+                        <Input
+                          id="ownerName"
+                          type="text"
+                          value={formData.ownerName}
+                          onChange={(e) => handleInputChange('ownerName', e.target.value)}
+                          placeholder="John Doe"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <Label htmlFor="ownerPassword">Admin Password *</Label>
                       <Input
-                        id="ownerName"
-                        type="text"
-                        value={formData.ownerName}
-                        onChange={(e) => handleInputChange('ownerName', e.target.value)}
-                        placeholder="John Doe"
+                        id="ownerPassword"
+                        type="password"
+                        value={formData.ownerPassword}
+                        onChange={(e) => handleInputChange('ownerPassword', e.target.value)}
+                        placeholder="Enter admin password (min 6 characters)"
+                        required
+                        minLength={6}
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        This will be used to access your admin dashboard at /{formData.slug}/admin
+                      </p>
                     </div>
                   </div>
 
@@ -263,6 +320,29 @@ const SiteRegistration = () => {
                       placeholder="Brief description of your travel services..."
                       rows={3}
                     />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="contactEmail">Contact Email</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={formData.contactEmail}
+                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="contact@company.com"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactPhone">Contact Phone</Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={formData.contactPhone}
+                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
                   </div>
 
                   <Button onClick={handleNextStep} className="w-full">
@@ -306,9 +386,23 @@ const SiteRegistration = () => {
                     <div className="space-y-3 text-sm">
                       <div><strong>Company:</strong> {formData.name}</div>
                       <div><strong>URL:</strong> /{formData.slug}</div>
-                      <div><strong>Owner:</strong> {formData.ownerEmail}</div>
+                      <div><strong>Admin Email:</strong> {formData.ownerEmail}</div>
+                      <div><strong>Contact Email:</strong> {formData.contactEmail}</div>
                       <div><strong>Selected Theme:</strong> {availableThemes.find(t => t.id === formData.theme)?.name || 'Default'}</div>
                     </div>
+                  </div>
+
+                  <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-900">Admin Access</h4>
+                    </div>
+                    <p className="text-sm text-blue-800">
+                      After creation, you can access your admin dashboard at: <br />
+                      <code className="bg-blue-100 px-2 py-1 rounded text-blue-900">
+                        /{formData.slug}/admin
+                      </code>
+                    </p>
                   </div>
 
                   <div className="flex gap-4">
