@@ -14,6 +14,7 @@ import SiteKnowledgeBase from "@/pages/SiteKnowledgeBase";
 import SiteAbout from "@/pages/SiteAbout";
 import SiteContact from "@/pages/SiteContact";
 import SiteLogin from "@/pages/SiteLogin";
+import SiteAuth from "@/pages/SiteAuth";
 import SiteAdmin from "@/pages/SiteAdmin";
 import SiteBooking from "@/pages/SiteBooking";
 import Packages from "@/pages/Packages";
@@ -151,7 +152,22 @@ const AppRoutes = () => {
           <SiteLogin />
         </SiteLayout>
       } />
+      <Route path="/:siteSlug/auth" element={
+        <SiteLayout>
+          <SiteAuth />
+        </SiteLayout>
+      } />
       <Route path="/:siteSlug/admin" element={
+        <SiteLayout>
+          <SiteAdmin />
+        </SiteLayout>
+      } />
+      <Route path="/:siteSlug/admin/dashboard" element={
+        <SiteLayout>
+          <SiteAdmin />
+        </SiteLayout>
+      } />
+      <Route path="/:siteSlug/dashboard" element={
         <SiteLayout>
           <SiteAdmin />
         </SiteLayout>

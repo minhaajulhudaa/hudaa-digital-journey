@@ -1,0 +1,85 @@
+
+import { Theme } from '@/types/theme';
+
+export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDefault' | 'createdAt' | 'updatedAt'>[] = [
+  {
+    name: 'Ocean Breeze',
+    description: 'A refreshing coastal theme with ocean blues and sandy neutrals',
+    primaryColor: '#0077be',
+    secondaryColor: '#00a8cc',
+    accentColor: '#ff6b35',
+    backgroundColor: '#f8fcff',
+    textColor: '#2c3e50',
+    cardColor: '#ffffff',
+    borderColor: '#e1f4fd',
+    gradientFrom: '#0077be',
+    gradientTo: '#00a8cc',
+    fontFamily: 'Poppins',
+    category: 'modern',
+    preview: '/api/placeholder/400/300'
+  },
+  {
+    name: 'Sunset Glow',
+    description: 'A warm and inviting theme with sunset-inspired colors',
+    primaryColor: '#d63384',
+    secondaryColor: '#fd7e14',
+    accentColor: '#ffc107',
+    backgroundColor: '#fff8e1',
+    textColor: '#5d4037',
+    cardColor: '#ffffff',
+    borderColor: '#ffecb3',
+    gradientFrom: '#d63384',
+    gradientTo: '#fd7e14',
+    fontFamily: 'Roboto',
+    category: 'warm',
+    preview: '/api/placeholder/400/300'
+  },
+  {
+    name: 'Forest Explorer',
+    description: 'An earthy theme perfect for nature and adventure travel',
+    primaryColor: '#2d5016',
+    secondaryColor: '#558b2f',
+    accentColor: '#ff9800',
+    backgroundColor: '#f1f8e9',
+    textColor: '#33691e',
+    cardColor: '#ffffff',
+    borderColor: '#c8e6c9',
+    gradientFrom: '#2d5016',
+    gradientTo: '#558b2f',
+    fontFamily: 'Inter',
+    category: 'nature',
+    preview: '/api/placeholder/400/300'
+  },
+  {
+    name: 'Urban Chic',
+    description: 'A sleek metropolitan theme with modern sophistication',
+    primaryColor: '#37474f',
+    secondaryColor: '#546e7a',
+    accentColor: '#26c6da',
+    backgroundColor: '#fafafa',
+    textColor: '#263238',
+    cardColor: '#ffffff',
+    borderColor: '#eceff1',
+    gradientFrom: '#37474f',
+    gradientTo: '#546e7a',
+    fontFamily: 'Roboto',
+    category: 'modern',
+    preview: '/api/placeholder/400/300'
+  },
+  {
+    name: 'Royal Elegance',
+    description: 'A luxurious theme with royal purples and gold accents',
+    primaryColor: '#4a148c',
+    secondaryColor: '#7b1fa2',
+    accentColor: '#ffd700',
+    backgroundColor: '#faf0ff',
+    textColor: '#4a148c',
+    cardColor: '#ffffff',
+    borderColor: '#e1bee7',
+    gradientFrom: '#4a148c',
+    gradientTo: '#7b1fa2',
+    fontFamily: 'Playfair Display',
+    category: 'luxury',
+    preview: '/api/placeholder/400/300'
+  }
+];
