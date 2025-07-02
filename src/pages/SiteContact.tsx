@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
@@ -51,7 +52,14 @@ const SiteContact = () => {
         description: "Thank you for your message. We'll get back to you soon."
       });
 
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ 
+        name: '', 
+        email: '', 
+        phone: '', 
+        subject: '', 
+        message: '', 
+        inquiryType: 'general' 
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       toast({

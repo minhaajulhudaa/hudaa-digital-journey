@@ -54,7 +54,7 @@ class GitHubSDK extends UniversalSDK {
       const items = await this.get<T>(collection);
       const newItem = {
         ...item,
-        id: item.id || uuidv4(),
+        id: (item as any).id || uuidv4(),
         uid: uuidv4()
       } as T & { id: string; uid: string; };
       
