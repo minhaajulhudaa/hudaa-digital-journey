@@ -29,7 +29,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   }, [selectedThemeId]);
 
   const handleThemeClick = (theme: Theme) => {
-    console.log('Theme clicked:', theme.slug);
+    console.log('Theme clicked:', theme.id);
     setSelectedTheme(theme.id);
     if (onThemeSelect) {
       onThemeSelect(theme.id);
@@ -37,7 +37,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   };
 
   const handlePreview = (theme: Theme) => {
-    console.log('Previewing theme:', theme.slug);
+    console.log('Previewing theme:', theme.id);
     setPreviewTheme(theme);
     // In a real implementation, this would open a preview modal
     alert(`Preview for ${theme.name} theme would open here`);
