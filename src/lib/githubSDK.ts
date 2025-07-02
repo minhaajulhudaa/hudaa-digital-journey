@@ -4,9 +4,9 @@ import type { UniversalSDKConfig } from './UniversalSDK';
 
 // Configuration for the GitHub SDK
 const sdkConfig: UniversalSDKConfig = {
-  owner: 'lovable-dev', // Replace with your GitHub username/org
-  repo: 'travel-platform-db', // Replace with your repository name
-  token: process.env.GITHUB_TOKEN || 'ghp_demo_token', // Replace with your GitHub token
+  owner: import.meta.env.VITE_GITHUB_OWNER, // Replace with your GitHub username/org
+  repo: import.meta.env.VITE_GITHUB_REPO, // Replace with your repository name
+  token: import.meta.env.VITE_GITHUB_TOKEN || 'ghp_demo_token', // Replace with your GitHub token
   branch: 'main',
   basePath: 'db',
   mediaPath: 'media',
