@@ -31,6 +31,14 @@ const SiteLayout: React.FC<SiteLayoutProps> = ({ children }) => {
     );
   }
 
+  if (!currentTheme) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
   const themeClasses = {
     background: currentTheme.backgroundColor,
     color: currentTheme.textColor,
