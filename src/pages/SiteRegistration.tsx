@@ -72,15 +72,26 @@ const SiteRegistration = () => {
   };
 
   const handleThemeSelect = (themeId: string) => {
+    console.log('Theme selected:', themeId);
     setFormData(prev => ({ ...prev, theme: themeId }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!formData.theme) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a theme",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
+      console.log('Creating site with data:', formData);
       const site = await createSite(formData);
       
       toast({
@@ -214,7 +225,7 @@ const SiteRegistration = () => {
                         required
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Your site will be: travelwith.com/{formData.slug || 'your-company'}
+                        Your site will be: yourdomain.com/{formData.slug || 'your-company'}
                       </p>
                     </div>
                   </div>
@@ -273,13 +284,14 @@ const SiteRegistration = () => {
                   <ThemeSelector 
                     showPreview={true}
                     onThemeSelect={handleThemeSelect}
+                    selectedThemeId={formData.theme}
                   />
 
                   <div className="flex gap-4">
                     <Button variant="outline" onClick={handlePrevStep} className="flex-1">
                       Back
                     </Button>
-                    <Button onClick={handleNextStep} className="flex-1">
+                    <Button onClick={handleNextStep} className="flex-1" disabled={!formData.theme}>
                       Next: Review
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
