@@ -23,19 +23,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onThemeSelect, selectedTh
     const theme = availableThemes.find(t => t.id === themeId);
     if (theme) {
       setPreviewTheme(themeId);
-      // Apply theme temporarily to DOM for preview
-      const root = document.documentElement;
-      root.style.setProperty('--theme-primary', theme.primaryColor);
-      root.style.setProperty('--theme-secondary', theme.secondaryColor);
-      root.style.setProperty('--theme-accent', theme.accentColor);
-      root.style.setProperty('--theme-background', theme.backgroundColor);
-      root.style.setProperty('--theme-text', theme.textColor);
-      root.style.setProperty('--theme-card', theme.cardColor);
-      root.style.setProperty('--theme-border', theme.borderColor);
       
       toast({
         title: "Theme Preview",
-        description: `Previewing ${theme.name}. Click 'Select Theme' to apply permanently.`
+        description: `Previewing ${theme.name}. Click 'Apply Theme' to make it permanent.`
       });
     }
   };

@@ -4,7 +4,7 @@ import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Phone, Mail, Users, Award, Clock, Shield } from 'lucide-react';
+import { MapPin, Phone, Mail, Users, Award, Clock, Shield, ArrowRight, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const SiteAbout = () => {
@@ -40,36 +40,46 @@ const SiteAbout = () => {
     <div className="min-h-screen" style={{ backgroundColor: currentTheme.backgroundColor }}>
       {/* Hero Section */}
       <section 
-        className="py-20 text-white relative overflow-hidden"
+        className="relative py-32 text-white overflow-hidden"
         style={{ 
           background: `linear-gradient(135deg, ${currentTheme.primaryColor}, ${currentTheme.gradientTo || currentTheme.accentColor})` 
         }}
       >
+        <div className="absolute inset-0 bg-black/30"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">
-              About {currentSite.name}
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-8 inline-flex items-center justify-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full">
+              <Users className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Our Story & Values</span>
+            </div>
+            <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-tight">
+              About
+              <span className="block text-5xl md:text-6xl bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                {currentSite.name}
+              </span>
             </h1>
             {currentSite.description && (
-              <p className="text-xl mb-8 opacity-90">
+              <p className="text-2xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
                 {currentSite.description}
               </p>
             )}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link to={`/${currentSite.slug}/packages`}>
-                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 px-12 py-6 text-lg rounded-full shadow-2xl transform hover:scale-105 transition-all">
+                  <ArrowRight className="w-5 h-5 mr-3" />
                   Explore Our Packages
                 </Button>
               </Link>
               <Link to={`/${currentSite.slug}/contact`}>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
+                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-12 py-6 text-lg rounded-full backdrop-blur-sm">
+                  <MessageSquare className="w-5 h-5 mr-3" />
                   Get In Touch
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent"></div>
       </section>
 
       {/* Story Section */}

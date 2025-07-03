@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, MessageSquare, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import sdk from '@/lib/sdk';
 
@@ -76,17 +76,45 @@ const SiteContact = () => {
     <div className="min-h-screen" style={{ backgroundColor: currentTheme.backgroundColor }}>
       {/* Hero Section */}
       <section 
-        className="py-20 text-white"
+        className="relative py-32 text-white overflow-hidden"
         style={{ 
           background: `linear-gradient(135deg, ${currentTheme.primaryColor}, ${currentTheme.gradientTo || currentTheme.accentColor})` 
         }}
       >
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-6">Contact Us</h1>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            We're here to help you plan your perfect journey. Get in touch with our travel experts today.
-          </p>
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-8 inline-flex items-center justify-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full">
+              <MessageSquare className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Get In Touch</span>
+            </div>
+            <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-tight">
+              Contact
+              <span className="block text-5xl md:text-6xl bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                Our Team
+              </span>
+            </h1>
+            <p className="text-2xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
+              We're here to help you plan your perfect journey. Get in touch with our travel experts today 
+              and let us make your travel dreams come true.
+            </p>
+            <div className="flex flex-wrap justify-center gap-8 text-lg">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6" />
+                <span>Expert Travel Consultation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6" />
+                <span>24/7 Customer Support</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6" />
+                <span>Personalized Itineraries</span>
+              </div>
+            </div>
+          </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent"></div>
       </section>
 
       <div className="container mx-auto px-4 py-16">

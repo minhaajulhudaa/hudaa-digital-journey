@@ -4,7 +4,7 @@ import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plane, MapPin, Star, Users, Award, Clock, Shield, Calendar, MessageSquare, ArrowRight, CheckCircle, Globe } from 'lucide-react';
+import { Plane, MapPin, Star, Users, Award, Clock, Shield, Calendar, MessageSquare, ArrowRight, CheckCircle, Globe, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const SiteIndex = () => {
@@ -68,38 +68,73 @@ const SiteIndex = () => {
     <div className="min-h-screen" style={{ backgroundColor: currentTheme.backgroundColor }}>
       {/* Hero Section */}
       <section 
-        className="py-24 text-white relative overflow-hidden"
+        className="relative py-32 text-white overflow-hidden"
         style={{ 
           background: `linear-gradient(135deg, ${currentTheme.primaryColor}, ${currentTheme.gradientTo || currentTheme.accentColor})` 
         }}
       >
+        <div className="absolute inset-0 bg-black/30"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-6xl font-bold mb-6 leading-tight">
-              Welcome to {currentSite.name}
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-8 inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
+              <Globe className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Premium Travel Experiences</span>
+            </div>
+            <h1 className="text-7xl md:text-8xl font-bold mb-8 leading-tight">
+              Welcome to
+              <span className="block text-6xl md:text-7xl bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                {currentSite.name}
+              </span>
             </h1>
             {currentSite.description && (
-              <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+              <p className="text-2xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
                 {currentSite.description}
               </p>
             )}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link to={`/${currentSite.slug}/packages`}>
-                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg">
-                  <Plane className="w-5 h-5 mr-2" />
+                <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 px-12 py-6 text-lg rounded-full shadow-2xl transform hover:scale-105 transition-all">
+                  <Plane className="w-6 h-6 mr-3" />
                   Explore Packages
+                  <ArrowRight className="w-5 h-5 ml-3" />
                 </Button>
               </Link>
               <Link to={`/${currentSite.slug}/contact`}>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Contact Us
+                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-12 py-6 text-lg rounded-full backdrop-blur-sm">
+                  <MessageSquare className="w-6 h-6 mr-3" />
+                  Get Started
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent"></div>
+      </section>
+
+      {/* Features Banner */}
+      <section className="py-8" style={{ backgroundColor: `${currentTheme.accentColor}20` }}>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center items-center gap-8 text-center">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+              <span className="font-semibold" style={{ color: currentTheme.textColor }}>
+                Trusted by 500+ Travelers
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+              <span className="font-semibold" style={{ color: currentTheme.textColor }}>
+                50+ Destinations Worldwide
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+              <span className="font-semibold" style={{ color: currentTheme.textColor }}>
+                24/7 Customer Support
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Stats Section */}
@@ -268,38 +303,76 @@ const SiteIndex = () => {
         </div>
       </section>
 
+      {/* Newsletter Section */}
+      <section className="py-20" style={{ backgroundColor: `${currentTheme.primaryColor}10` }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 
+              className="text-4xl font-bold mb-6"
+              style={{ color: currentTheme.primaryColor }}
+            >
+              Stay Updated with Latest Travel Deals
+            </h2>
+            <p className="text-xl mb-8" style={{ color: currentTheme.textColor }}>
+              Subscribe to our newsletter and never miss exclusive offers and travel tips.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mb-8">
+              <input 
+                type="email" 
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+                style={{ borderColor: currentTheme.borderColor }}
+              />
+              <Button 
+                style={{ backgroundColor: currentTheme.accentColor }}
+                className="text-white px-8 py-3 rounded-lg"
+              >
+                Subscribe
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
-      <section className="py-16" style={{ backgroundColor: `${currentTheme.primaryColor}10` }}>
+      <section className="py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 
-            className="text-4xl font-bold mb-8"
+            className="text-5xl font-bold mb-8"
             style={{ color: currentTheme.primaryColor }}
           >
-            Ready to Get Started?
+            Ready to Start Your Journey?
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: currentTheme.textColor }}>
+          <p className="text-2xl mb-12 max-w-3xl mx-auto" style={{ color: currentTheme.textColor }}>
             Contact us today to plan your perfect travel experience with {currentSite.name}.
           </p>
-          <div className="space-y-4 mb-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto mb-12">
             {currentSite.contactEmail && (
-              <p className="text-lg" style={{ color: currentTheme.textColor }}>
-                <strong style={{ color: currentTheme.primaryColor }}>Email:</strong> {currentSite.contactEmail}
-              </p>
+              <div className="flex items-center justify-center gap-3">
+                <Mail className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+                <span className="text-lg font-medium" style={{ color: currentTheme.textColor }}>
+                  {currentSite.contactEmail}
+                </span>
+              </div>
             )}
             {currentSite.contactPhone && (
-              <p className="text-lg" style={{ color: currentTheme.textColor }}>
-                <strong style={{ color: currentTheme.primaryColor }}>Phone:</strong> {currentSite.contactPhone}
-              </p>
+              <div className="flex items-center justify-center gap-3">
+                <Phone className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+                <span className="text-lg font-medium" style={{ color: currentTheme.textColor }}>
+                  {currentSite.contactPhone}
+                </span>
+              </div>
             )}
           </div>
           <Link to={`/${currentSite.slug}/contact`}>
             <Button 
               size="lg"
               style={{ backgroundColor: currentTheme.accentColor }}
-              className="text-white"
+              className="text-white px-12 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
             >
-              <MessageSquare className="w-5 h-5 mr-2" />
+              <MessageSquare className="w-6 h-6 mr-3" />
               Get In Touch
+              <ArrowRight className="w-5 h-5 ml-3" />
             </Button>
           </Link>
         </div>

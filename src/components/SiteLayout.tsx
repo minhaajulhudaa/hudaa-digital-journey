@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import { Loader2 } from 'lucide-react';
@@ -74,55 +75,55 @@ const SiteLayout: React.FC<SiteLayoutProps> = ({ children }) => {
               </h1>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a 
-                href={`/${currentSite.slug}`} 
+              <Link 
+                to={`/${currentSite.slug}`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Home
-              </a>
-              <a 
-                href={`/${currentSite.slug}/packages`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/packages`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Packages
-              </a>
-              <a 
-                href={`/${currentSite.slug}/blog`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/blog`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Blog
-              </a>
-              <a 
-                href={`/${currentSite.slug}/courses`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/courses`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Courses
-              </a>
-              <a 
-                href={`/${currentSite.slug}/events`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/events`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Events
-              </a>
-              <a 
-                href={`/${currentSite.slug}/about`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/about`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 About
-              </a>
-              <a 
-                href={`/${currentSite.slug}/contact`} 
+              </Link>
+              <Link 
+                to={`/${currentSite.slug}/contact`} 
                 className="hover:opacity-80 transition-opacity"
                 style={{ color: currentTheme.textColor }}
               >
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
