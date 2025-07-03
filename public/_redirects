@@ -1,3 +1,19 @@
 
-/*    /index.html   200
-/:siteSlug/*    /index.html   200
+# Handle site-specific routes first
+/:siteSlug/auth /index.html 200
+/:siteSlug/admin /index.html 200
+/:siteSlug/admin/dashboard /index.html 200
+/:siteSlug/dashboard /index.html 200
+/:siteSlug/packages /index.html 200
+/:siteSlug/blog /index.html 200
+/:siteSlug/courses /index.html 200
+/:siteSlug/events /index.html 200
+/:siteSlug/knowledge-base /index.html 200
+/:siteSlug/about /index.html 200
+/:siteSlug/contact /index.html 200
+/:siteSlug/login /index.html 200
+/:siteSlug/booking /index.html 200
+/:siteSlug /index.html 200
+
+# Main platform routes
+/* /index.html 200

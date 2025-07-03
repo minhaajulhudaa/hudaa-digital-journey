@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { useSite } from '@/hooks/useSite';
@@ -24,9 +25,21 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onThemeSelect, selectedTh
     if (theme) {
       setPreviewTheme(themeId);
       
+      // Apply theme to DOM for preview
+      const root = document.documentElement;
+      root.style.setProperty('--theme-primary', theme.primaryColor);
+      root.style.setProperty('--theme-secondary', theme.secondaryColor);
+      root.style.setProperty('--theme-accent', theme.accentColor);
+      root.style.setProperty('--theme-background', theme.backgroundColor);
+      root.style.setProperty('--theme-text', theme.textColor);
+      root.style.setProperty('--theme-card', theme.cardColor);
+      root.style.setProperty('--theme-border', theme.borderColor);
+      root.style.setProperty('--theme-gradient-from', theme.gradientFrom);
+      root.style.setProperty('--theme-gradient-to', theme.gradientTo);
+      
       toast({
-        title: "Theme Preview",
-        description: `Previewing ${theme.name}. Click 'Apply Theme' to make it permanent.`
+        title: "Theme Preview Active",
+        description: `Now previewing ${theme.name}. Click 'Apply Theme' to make it permanent.`
       });
     }
   };
@@ -55,7 +68,27 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onThemeSelect, selectedTh
     }
   };
 
-  
+  const cancelPreview = () => {
+    setPreviewTheme(null);
+    // Restore current theme
+    if (currentTheme) {
+      const root = document.documentElement;
+      root.style.setProperty('--theme-primary', currentTheme.primaryColor);
+      root.style.setProperty('--theme-secondary', currentTheme.secondaryColor);
+      root.style.setProperty('--theme-accent', currentTheme.accentColor);
+      root.style.setProperty('--theme-background', currentTheme.backgroundColor);
+      root.style.setProperty('--theme-text', currentTheme.textColor);
+      root.style.setProperty('--theme-card', currentTheme.cardColor);
+      root.style.setProperty('--theme-border', currentTheme.borderColor);
+      root.style.setProperty('--theme-gradient-from', currentTheme.gradientFrom);
+      root.style.setProperty('--theme-gradient-to', currentTheme.gradientTo);
+    }
+    toast({
+      title: "Preview Cancelled",
+      description: "Restored to your current theme."
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -170,20 +203,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onThemeSelect, selectedTh
           <p className="text-sm font-medium mb-2">Preview Mode Active</p>
           <div className="flex gap-2">
             <Button
-              onClick={() => {
-                setPreviewTheme(null);
-                // Restore current theme
-                if (currentTheme) {
-                  const root = document.documentElement;
-                  root.style.setProperty('--theme-primary', currentTheme.primaryColor);
-                  root.style.setProperty('--theme-secondary', currentTheme.secondaryColor);
-                  root.style.setProperty('--theme-accent', currentTheme.accentColor);
-                  root.style.setProperty('--theme-background', currentTheme.backgroundColor);
-                  root.style.setProperty('--theme-text', currentTheme.textColor);
-                  root.style.setProperty('--theme-card', currentTheme.cardColor);
-                  root.style.setProperty('--theme-border', currentTheme.borderColor);
-                }
-              }}
+              onClick={cancelPreview}
               variant="outline"
               size="sm"
             >
