@@ -27,8 +27,8 @@ export interface Theme {
   headerStyle: string;
   footerStyle: string;
   buttonStyle: 'rounded' | 'square' | 'pill';
-  cardStyle: 'flat' | 'shadow' | 'border' | 'glass' | 'elevated';
-  layout: 'traditional' | 'modern' | 'minimal' | 'luxury' | 'creative';
+  cardStyle: 'flat' | 'shadow' | 'border' | 'glass' | 'elevated' | 'glow' | 'soft';
+  layout: 'traditional' | 'modern' | 'minimal' | 'luxury' | 'creative' | 'futuristic';
   sections: ThemeSection[];
   customCSS?: string;
   isDefault?: boolean;

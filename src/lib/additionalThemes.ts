@@ -1,4 +1,3 @@
-
 import { Theme } from '@/types/theme';
 
 export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDefault' | 'createdAt' | 'updatedAt'>[] = [
@@ -219,8 +218,8 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     headerStyle: 'modern',
     footerStyle: 'dark',
     buttonStyle: 'square',
-    cardStyle: 'glow',
-    layout: 'futuristic'
+    cardStyle: 'glass',
+    layout: 'creative'
   },
   {
     name: 'Cherry Blossom',
@@ -239,7 +238,7 @@ export const additionalThemes: Omit<Theme, 'id' | 'sections' | 'status' | 'isDef
     headerStyle: 'elegant',
     footerStyle: 'clean',
     buttonStyle: 'rounded',
-    cardStyle: 'soft',
+    cardStyle: 'elevated',
     layout: 'minimal'
   },
   {
