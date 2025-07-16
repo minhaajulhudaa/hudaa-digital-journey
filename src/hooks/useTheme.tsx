@@ -1,6 +1,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { Theme, defaultSections, enhancedThemes } from '@/types/theme';
+import { additionalThemes } from '@/lib/additionalThemes';
 import { useSite } from './useSite';
 import githubSDK from '@/lib/githubSDK';
 
@@ -53,30 +54,85 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       setLoading(true);
       setError(null);
 
-      // Get existing themes from GitHub
-      const existingThemes = await githubSDK.get<Theme>('themes');
-      
-      // If no themes exist, populate with enhanced themes
-      if (existingThemes.length === 0) {
-        console.log('Initializing themes in GitHub DB...');
-        const themesToCreate = enhancedThemes.map((themeData, index) => ({
-          ...themeData,
+      try {
+        // Try to get existing themes from GitHub
+        const existingThemes = await githubSDK.get<Theme>('themes');
+        
+        // If no themes exist, populate with all available themes
+        if (existingThemes.length === 0) {
+          console.log('Initializing themes in GitHub DB...');
+          const allThemes = [...enhancedThemes, ...additionalThemes];
+          const themesToCreate = allThemes.map((themeData, index) => ({
+            id: `theme-${index + 1}`,
+            name: themeData.name || 'Unnamed Theme',
+            description: themeData.description || '',
+            category: themeData.category || 'general',
+            primaryColor: themeData.primaryColor || '#000000',
+            secondaryColor: themeData.secondaryColor || '#ffffff',
+            accentColor: themeData.accentColor || '#0066cc',
+            backgroundColor: themeData.backgroundColor || '#ffffff',
+            textColor: themeData.textColor || '#000000',
+            cardColor: themeData.cardColor || '#ffffff',
+            borderColor: themeData.borderColor || '#e5e7eb',
+            gradientFrom: themeData.gradientFrom || themeData.primaryColor || '#000000',
+            gradientTo: themeData.gradientTo || themeData.accentColor || '#0066cc',
+            fontFamily: themeData.fontFamily || 'Inter',
+            headerStyle: themeData.headerStyle || 'modern',
+            footerStyle: themeData.footerStyle || 'clean',
+            buttonStyle: themeData.buttonStyle || 'rounded',
+            cardStyle: themeData.cardStyle || 'shadow',
+            layout: themeData.layout || 'modern',
+            sections: defaultSections,
+            status: 'active' as const,
+            isDefault: index === 0,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }));
+
+          for (const themeData of themesToCreate) {
+            await githubSDK.insert<Theme>('themes', themeData);
+          }
+
+          // Reload themes after initialization
+          const newThemes = await githubSDK.get<Theme>('themes');
+          setAvailableThemes(newThemes.filter(t => t.status === 'active'));
+        } else {
+          setAvailableThemes(existingThemes.filter(t => t.status === 'active'));
+        }
+      } catch (githubError) {
+        console.error('GitHub themes fetch failed, using local fallback:', githubError);
+        
+        // Fallback to local theme data when GitHub fails
+        const allThemes = [...enhancedThemes, ...additionalThemes];
+        const fallbackThemes = allThemes.map((themeData, index) => ({
+          id: `theme-${index + 1}`,
+          name: themeData.name || 'Unnamed Theme',
+          description: themeData.description || '',
+          category: themeData.category || 'general',
+          primaryColor: themeData.primaryColor || '#000000',
+          secondaryColor: themeData.secondaryColor || '#ffffff',
+          accentColor: themeData.accentColor || '#0066cc',
+          backgroundColor: themeData.backgroundColor || '#ffffff',
+          textColor: themeData.textColor || '#000000',
+          cardColor: themeData.cardColor || '#ffffff',
+          borderColor: themeData.borderColor || '#e5e7eb',
+          gradientFrom: themeData.gradientFrom || themeData.primaryColor || '#000000',
+          gradientTo: themeData.gradientTo || themeData.accentColor || '#0066cc',
+          fontFamily: themeData.fontFamily || 'Inter',
+          headerStyle: themeData.headerStyle || 'modern',
+          footerStyle: themeData.footerStyle || 'clean',
+          buttonStyle: themeData.buttonStyle || 'rounded',
+          cardStyle: themeData.cardStyle || 'shadow',
+          layout: themeData.layout || 'modern',
           sections: defaultSections,
-          status: 'active',
+          status: 'active' as const,
           isDefault: index === 0,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
-        }));
-
-        for (const themeData of themesToCreate) {
-          await githubSDK.insert<Theme>('themes', themeData);
-        }
-
-        // Reload themes after initialization
-        const newThemes = await githubSDK.get<Theme>('themes');
-        setAvailableThemes(newThemes.filter(t => t.status === 'active'));
-      } else {
-        setAvailableThemes(existingThemes.filter(t => t.status === 'active'));
+        })) as Theme[];
+        
+        setAvailableThemes(fallbackThemes);
+        console.log('Using local fallback themes:', fallbackThemes.length, 'themes loaded');
       }
     } catch (err) {
       console.error('Error initializing themes:', err);
