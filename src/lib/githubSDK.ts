@@ -28,30 +28,21 @@ class GitHubSDK extends UniversalSDK {
 
   async get<T>(endpoint: string): Promise<T[]> {
     try {
-      // Try multiple repository paths since we don't know the exact repo name
-      const possibleRepos = [
-        'lovable-dev/travelwith-platform',
-        'travelwith-platform/data',
-        'lovable-dev/travel-platform',
-        'lovable-labs/travelwith'
-      ];
+      // Use environment variables for repository configuration
+      const owner = import.meta.env.VITE_GITHUB_OWNER;
+      const repo = import.meta.env.VITE_GITHUB_REPO;
       
-      let lastError: any;
-      for (const repo of possibleRepos) {
-        try {
-          const response = await this.api.get(`/repos/${repo}/contents/data/${endpoint}.json`);
-          const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
-          console.log(`Successfully fetched from ${repo}`);
-          return data as T[];
-        } catch (error: any) {
-          lastError = error;
-          console.log(`Failed to fetch from ${repo}, trying next...`);
-        }
+      if (!owner || !repo) {
+        throw new Error('GitHub repository configuration missing. Please set VITE_GITHUB_OWNER and VITE_GITHUB_REPO environment variables.');
       }
       
-      console.error(`Error fetching ${endpoint}:`, lastError.message);
-      console.error(`Response details:`, lastError.response);
-      throw lastError;
+      const repoPath = `${owner}/${repo}`;
+      console.log(`Fetching ${endpoint} from repository: ${repoPath}`);
+      
+      const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
+      const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
+      console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
+      return data as T[];
     } catch (error: any) {
       console.error(`Error fetching ${endpoint}:`, error.message);
       console.error(`Response details:`, error.response);
@@ -120,33 +111,23 @@ class GitHubSDK extends UniversalSDK {
     const fileContent = JSON.stringify(content, null, 2);
     const encodedContent = Buffer.from(fileContent).toString('base64');
 
-    // Use the same repository detection logic
-    const possibleRepos = [
-      'lovable-dev/travelwith-platform',
-      'travelwith-platform/data',
-      'lovable-dev/travel-platform',
-      'lovable-labs/travelwith'
-    ];
+    // Use environment variables for repository configuration
+    const owner = import.meta.env.VITE_GITHUB_OWNER;
+    const repo = import.meta.env.VITE_GITHUB_REPO;
     
-    let targetRepo = possibleRepos[0]; // Default to first one
-    
-    // Try to find which repo works for reading first
-    for (const repo of possibleRepos) {
-      try {
-        await this.api.get(`/repos/${repo}/contents/${filePath}`);
-        targetRepo = repo;
-        break;
-      } catch (error) {
-        // Continue to next repo
-      }
+    if (!owner || !repo) {
+      throw new Error('GitHub repository configuration missing. Please set VITE_GITHUB_OWNER and VITE_GITHUB_REPO environment variables.');
     }
+    
+    const repoPath = `${owner}/${repo}`;
+    console.log(`Updating ${endpoint} in repository: ${repoPath}`);
 
     try {
-      const getResponse = await this.api.get(`/repos/${targetRepo}/contents/${filePath}`);
+      const getResponse = await this.api.get(`/repos/${repoPath}/contents/${filePath}`);
       const sha = getResponse.data.sha;
 
       await this.api.put(
-        `/repos/${targetRepo}/contents/${filePath}`,
+        `/repos/${repoPath}/contents/${filePath}`,
         {
           message: `Update ${endpoint}`,
           content: encodedContent,
@@ -154,6 +135,8 @@ class GitHubSDK extends UniversalSDK {
           branch: 'main'
         }
       );
+      
+      console.log(`Successfully updated ${endpoint} in ${repoPath}`);
     } catch (error: any) {
       console.error(`Error updating content for ${endpoint}:`, error);
       throw error;
