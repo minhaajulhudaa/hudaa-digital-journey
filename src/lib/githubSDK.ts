@@ -15,24 +15,38 @@ interface GitHubSDKConfig {
 }
 
 class GitHubSDK extends UniversalSDK {
-  constructor(config?: GitHubSDKConfig) {
-    // Initialize parent with dummy values since we use local storage
+  private api: any;
+
+  constructor(config: GitHubSDKConfig) {
+    // Initialize parent with dummy values since we override the methods
     super({ owner: '', repo: '', token: '' });
+    this.api = axios.create({
+      baseURL: config.baseURL,
+      headers: config.headers
+    });
   }
 
   async get<T>(endpoint: string): Promise<T[]> {
     try {
-      // Use localStorage for data persistence
-      const stored = localStorage.getItem(`travel_platform_${endpoint}`);
-      if (stored) {
-        return JSON.parse(stored) as T[];
+      // Use environment variables for repository configuration
+      const owner = import.meta.env.VITE_GITHUB_OWNER;
+      const repo = import.meta.env.VITE_GITHUB_REPO;
+      
+      if (!owner || !repo) {
+        throw new Error('GitHub repository configuration missing. Please set VITE_GITHUB_OWNER and VITE_GITHUB_REPO environment variables.');
       }
       
-      // Return empty array if no data stored
-      return [];
+      const repoPath = `${owner}/${repo}`;
+      console.log(`Fetching ${endpoint} from repository: ${repoPath}`);
+      
+      const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
+      const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
+      console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
+      return data as T[];
     } catch (error: any) {
-      console.error(`Error fetching ${endpoint} from localStorage:`, error);
-      return [];
+      console.error(`Error fetching ${endpoint}:`, error.message);
+      console.error(`Response details:`, error.response);
+      throw error;
     }
   }
 
@@ -93,10 +107,36 @@ class GitHubSDK extends UniversalSDK {
   }
 
   private async updateContent(endpoint: string, content: any[]): Promise<void> {
+    const filePath = `data/${endpoint}.json`;
+    const fileContent = JSON.stringify(content, null, 2);
+    const encodedContent = Buffer.from(fileContent).toString('base64');
+
+    // Use environment variables for repository configuration
+    const owner = import.meta.env.VITE_GITHUB_OWNER;
+    const repo = import.meta.env.VITE_GITHUB_REPO;
+    
+    if (!owner || !repo) {
+      throw new Error('GitHub repository configuration missing. Please set VITE_GITHUB_OWNER and VITE_GITHUB_REPO environment variables.');
+    }
+    
+    const repoPath = `${owner}/${repo}`;
+    console.log(`Updating ${endpoint} in repository: ${repoPath}`);
+
     try {
-      // Store in localStorage instead of GitHub
-      localStorage.setItem(`travel_platform_${endpoint}`, JSON.stringify(content));
-      console.log(`Successfully updated ${endpoint} in localStorage`);
+      const getResponse = await this.api.get(`/repos/${repoPath}/contents/${filePath}`);
+      const sha = getResponse.data.sha;
+
+      await this.api.put(
+        `/repos/${repoPath}/contents/${filePath}`,
+        {
+          message: `Update ${endpoint}`,
+          content: encodedContent,
+          sha: sha,
+          branch: 'main'
+        }
+      );
+      
+      console.log(`Successfully updated ${endpoint} in ${repoPath}`);
     } catch (error: any) {
       console.error(`Error updating content for ${endpoint}:`, error);
       throw error;
@@ -158,6 +198,13 @@ export const initializeThemes = async () => {
   }
 };
 
-const githubSDK = new GitHubSDK();
+const githubSDK = new GitHubSDK({
+  baseURL: 'https://api.github.com',
+  headers: {
+    'Authorization': `token ${import.meta.env.VITE_GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  }
+});
 
 export default githubSDK;
