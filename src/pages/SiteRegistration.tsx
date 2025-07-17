@@ -289,7 +289,7 @@ const SiteRegistration = () => {
                           type="text"
                           value={formData.ownerName}
                           onChange={(e) => handleInputChange('ownerName', e.target.value)}
-                          placeholder="John Doe"
+                          placeholder="Abdullah AbdulWaheed"
                         />
                       </div>
                     </div>
