@@ -39,10 +39,19 @@ class GitHubSDK extends UniversalSDK {
       const repoPath = `${owner}/${repo}`;
       console.log(`Fetching ${endpoint} from repository: ${repoPath}`);
       
-      const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
-      const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
-      console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
-      return data as T[];
+      try {
+        const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
+        const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
+        console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
+        return data as T[];
+      } catch (fetchError: any) {
+        if (fetchError.response?.status === 404) {
+          console.log(`Collection ${endpoint} doesn't exist, creating it...`);
+          await this.createCollection(endpoint);
+          return [];
+        }
+        throw fetchError;
+      }
     } catch (error: any) {
       console.error(`Error fetching ${endpoint}:`, error.message);
       console.error(`Response details:`, error.response);
@@ -106,6 +115,39 @@ class GitHubSDK extends UniversalSDK {
     }
   }
 
+  private async createCollection(endpoint: string): Promise<void> {
+    const filePath = `data/${endpoint}.json`;
+    const fileContent = JSON.stringify([], null, 2);
+    const encodedContent = Buffer.from(fileContent).toString('base64');
+
+    // Use environment variables for repository configuration
+    const owner = import.meta.env.VITE_GITHUB_OWNER;
+    const repo = import.meta.env.VITE_GITHUB_REPO;
+    
+    if (!owner || !repo) {
+      throw new Error('GitHub repository configuration missing. Please set VITE_GITHUB_OWNER and VITE_GITHUB_REPO environment variables.');
+    }
+    
+    const repoPath = `${owner}/${repo}`;
+    console.log(`Creating collection ${endpoint} in repository: ${repoPath}`);
+
+    try {
+      await this.api.put(
+        `/repos/${repoPath}/contents/${filePath}`,
+        {
+          message: `Create ${endpoint} collection`,
+          content: encodedContent,
+          branch: 'main'
+        }
+      );
+      
+      console.log(`Successfully created collection ${endpoint} in ${repoPath}`);
+    } catch (error: any) {
+      console.error(`Error creating collection ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
   private async updateContent(endpoint: string, content: any[]): Promise<void> {
     const filePath = `data/${endpoint}.json`;
     const fileContent = JSON.stringify(content, null, 2);
@@ -138,6 +180,11 @@ class GitHubSDK extends UniversalSDK {
       
       console.log(`Successfully updated ${endpoint} in ${repoPath}`);
     } catch (error: any) {
+      if (error.response?.status === 404) {
+        // File doesn't exist, create it
+        await this.createCollection(endpoint);
+        return;
+      }
       console.error(`Error updating content for ${endpoint}:`, error);
       throw error;
     }
