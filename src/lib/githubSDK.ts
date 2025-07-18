@@ -14,6 +14,15 @@ interface GitHubSDKConfig {
   };
 }
 
+// Browser-compatible base64 encoding/decoding
+const base64Encode = (str: string): string => {
+  return btoa(unescape(encodeURIComponent(str)));
+};
+
+const base64Decode = (str: string): string => {
+  return decodeURIComponent(escape(atob(str)));
+};
+
 class GitHubSDK extends UniversalSDK {
   private api: any;
 
@@ -41,7 +50,7 @@ class GitHubSDK extends UniversalSDK {
       
       try {
         const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
-        const data = JSON.parse(Buffer.from(response.data.content, 'base64').toString('utf-8'));
+        const data = JSON.parse(base64Decode(response.data.content));
         console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
         return data as T[];
       } catch (fetchError: any) {
@@ -118,7 +127,7 @@ class GitHubSDK extends UniversalSDK {
   private async createCollection(endpoint: string): Promise<void> {
     const filePath = `data/${endpoint}.json`;
     const fileContent = JSON.stringify([], null, 2);
-    const encodedContent = Buffer.from(fileContent).toString('base64');
+    const encodedContent = base64Encode(fileContent);
 
     // Use environment variables for repository configuration
     const owner = import.meta.env.VITE_GITHUB_OWNER;
@@ -151,7 +160,7 @@ class GitHubSDK extends UniversalSDK {
   private async updateContent(endpoint: string, content: any[]): Promise<void> {
     const filePath = `data/${endpoint}.json`;
     const fileContent = JSON.stringify(content, null, 2);
-    const encodedContent = Buffer.from(fileContent).toString('base64');
+    const encodedContent = base64Encode(fileContent);
 
     // Use environment variables for repository configuration
     const owner = import.meta.env.VITE_GITHUB_OWNER;
