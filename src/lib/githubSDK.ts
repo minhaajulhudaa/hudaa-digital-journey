@@ -25,6 +25,8 @@ const base64Decode = (str: string): string => {
 
 class GitHubSDK extends UniversalSDK {
   private api: any;
+  private cache: Record<string, { data: any[], sha?: string, etag?: string }> = {};
+  private subscribers: Record<string, Function[]> = {};
 
   constructor(config: GitHubSDKConfig) {
     // Initialize parent with dummy values since we override the methods
@@ -51,6 +53,17 @@ class GitHubSDK extends UniversalSDK {
       try {
         const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
         const data = JSON.parse(base64Decode(response.data.content));
+        
+        // Update cache
+        this.cache[endpoint] = { 
+          data, 
+          sha: response.data.sha,
+          etag: response.headers.etag
+        };
+        
+        // Notify subscribers
+        this.notifySubscribers(endpoint, data);
+        
         console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
         return data as T[];
       } catch (fetchError: any) {
@@ -66,6 +79,41 @@ class GitHubSDK extends UniversalSDK {
       console.error(`Response details:`, error.response);
       throw error;
     }
+  }
+
+  private notifySubscribers(collection: string, data: any[]) {
+    (this.subscribers[collection] || []).forEach(cb => cb(data));
+  }
+
+  subscribe<T = any>(collection: string, callback: (data: T[]) => void): () => void {
+    if (!this.subscribers[collection]) {
+      this.subscribers[collection] = [];
+    }
+    this.subscribers[collection].push(callback);
+
+    // Immediately provide current data if available
+    if (this.cache[collection]) {
+      callback(this.cache[collection].data);
+    } else {
+      this.get(collection).then(data => callback(data));
+    }
+
+    // Set up polling for real-time updates
+    const pollInterval = setInterval(async () => {
+      try {
+        const data = await this.get(collection);
+        // Data will be automatically notified via get method
+      } catch (error) {
+        console.error(`Polling failed for ${collection}:`, error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => {
+      this.subscribers[collection] = (this.subscribers[collection] || []).filter(cb => cb !== callback);
+      if (this.subscribers[collection].length === 0) {
+        clearInterval(pollInterval);
+      }
+    };
   }
 
   async getItem<T>(endpoint: string, itemId: string): Promise<T | null> {
@@ -85,11 +133,18 @@ class GitHubSDK extends UniversalSDK {
       const newItem = {
         ...item,
         id: (item as any).id || uuidv4(),
-        uid: uuidv4()
+        uid: uuidv4(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } as T & { id: string; uid: string; };
       
       const updatedItems = [...(items as any[]), newItem];
       await this.updateContent(collection, updatedItems);
+      
+      // Update cache and notify subscribers
+      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.notifySubscribers(collection, updatedItems);
+      
       return newItem;
     } catch (error) {
       console.error(`Error inserting item into ${collection}:`, error);
@@ -101,9 +156,19 @@ class GitHubSDK extends UniversalSDK {
     try {
       const items = await this.get<T>(collection);
       const updatedItems = (items as any[]).map(item =>
-        item.id === key ? { ...item, ...updates } : item
+        item.id === key ? { 
+          ...item, 
+          ...updates, 
+          updatedAt: new Date().toISOString() 
+        } : item
       );
+      
       await this.updateContent(collection, updatedItems);
+      
+      // Update cache and notify subscribers
+      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.notifySubscribers(collection, updatedItems);
+      
       const updatedItem = updatedItems.find(item => item.id === key);
       if (!updatedItem) throw new Error(`Item with key ${key} not found`);
       return updatedItem;
@@ -118,6 +183,10 @@ class GitHubSDK extends UniversalSDK {
       const items = await this.get(collection);
       const updatedItems = (items as any[]).filter(item => item.id !== key);
       await this.updateContent(collection, updatedItems);
+      
+      // Update cache and notify subscribers
+      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.notifySubscribers(collection, updatedItems);
     } catch (error) {
       console.error(`Error deleting item from ${collection}:`, error);
       throw error;
@@ -174,18 +243,37 @@ class GitHubSDK extends UniversalSDK {
     console.log(`Updating ${endpoint} in repository: ${repoPath}`);
 
     try {
-      const getResponse = await this.api.get(`/repos/${repoPath}/contents/${filePath}`);
-      const sha = getResponse.data.sha;
-
-      await this.api.put(
-        `/repos/${repoPath}/contents/${filePath}`,
-        {
-          message: `Update ${endpoint}`,
-          content: encodedContent,
-          sha: sha,
-          branch: 'main'
+      // Get current SHA to prevent conflicts
+      let sha: string | undefined;
+      if (this.cache[endpoint]?.sha) {
+        sha = this.cache[endpoint].sha;
+      } else {
+        try {
+          const getResponse = await this.api.get(`/repos/${repoPath}/contents/${filePath}`);
+          sha = getResponse.data.sha;
+        } catch (error: any) {
+          if (error.response?.status !== 404) {
+            throw error;
+          }
         }
-      );
+      }
+
+      const updateData: any = {
+        message: `Update ${endpoint} - ${new Date().toISOString()}`,
+        content: encodedContent,
+        branch: 'main'
+      };
+
+      if (sha) {
+        updateData.sha = sha;
+      }
+
+      const response = await this.api.put(`/repos/${repoPath}/contents/${filePath}`, updateData);
+      
+      // Update cached SHA
+      if (this.cache[endpoint]) {
+        this.cache[endpoint].sha = response.data.content.sha;
+      }
       
       console.log(`Successfully updated ${endpoint} in ${repoPath}`);
     } catch (error: any) {

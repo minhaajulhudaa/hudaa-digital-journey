@@ -1,67 +1,191 @@
 
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AdminLayout from '@/components/AdminLayout';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Package, FileText, Calendar, Users, BarChart3, Edit3, PlusCircle, Edit, Trash2, Eye, BookOpen, HelpCircle } from 'lucide-react';
+import { Package, FileText, Calendar, Users, BarChart3, Edit, Trash2, Eye, BookOpen, HelpCircle, Plus, Search, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 import AdminCMSEditor from '@/components/AdminCMSEditor';
-import LiveEditor from '@/components/LiveEditor';
 import githubSDK from '@/lib/githubSDK';
 
-const SiteAdmin = () => {
+// Dashboard Component
+const Dashboard = () => {
+  const { currentSite } = useSite();
+  const { currentTheme } = useTheme();
+  const [stats, setStats] = useState({
+    packages: 0,
+    courses: 0,
+    events: 0,
+    blogs: 0,
+    knowledgebase: 0,
+    faqs: 0,
+    users: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentSite) {
+      loadStats();
+    }
+  }, [currentSite]);
+
+  const loadStats = async () => {
+    if (!currentSite) return;
+    
+    setLoading(true);
+    try {
+      const [packages, courses, events, blogs, kb, faqs, users] = await Promise.all([
+        githubSDK.get('packages'),
+        githubSDK.get('courses'),
+        githubSDK.get('events'),
+        githubSDK.get('blogs'),
+        githubSDK.get('knowledgebase'),
+        githubSDK.get('faqs'),
+        githubSDK.get('users')
+      ]);
+
+      setStats({
+        packages: packages.filter((p: any) => p.siteId === currentSite.id).length,
+        courses: courses.filter((c: any) => c.siteId === currentSite.id).length,
+        events: events.filter((e: any) => e.siteId === currentSite.id).length,
+        blogs: blogs.filter((b: any) => b.siteId === currentSite.id).length,
+        knowledgebase: kb.filter((k: any) => k.siteId === currentSite.id).length,
+        faqs: faqs.filter((f: any) => f.siteId === currentSite.id).length,
+        users: users.filter((u: any) => u.siteId === currentSite.id).length
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const StatCard = ({ title, value, icon: Icon, color }: any) => (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" style={{ color }} />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold" style={{ color }}>{value}</div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold" style={{ color: currentTheme?.primaryColor }}>
+          Dashboard
+        </h1>
+        <p className="text-gray-600">Welcome to your {currentSite?.name} admin panel</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Packages"
+          value={stats.packages}
+          icon={Package}
+          color={currentTheme?.primaryColor}
+        />
+        <StatCard
+          title="Courses"
+          value={stats.courses}
+          icon={BookOpen}
+          color={currentTheme?.accentColor}
+        />
+        <StatCard
+          title="Events"
+          value={stats.events}
+          icon={Calendar}
+          color="#f59e0b"
+        />
+        <StatCard
+          title="Blog Posts"
+          value={stats.blogs}
+          icon={FileText}
+          color="#8b5cf6"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest updates to your content</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-500">No recent activity</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common tasks</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Button className="w-full justify-start">
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Package
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Blog Post
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Plus className="mr-2 h-4 w-4" />
+              Schedule Event
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// Content Manager Component
+const ContentManager = ({ collection, displayName }: { collection: string; displayName: string }) => {
   const { currentSite } = useSite();
   const { currentTheme } = useTheme();
   const { toast } = useToast();
-  
-  const [packages, setPackages] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [blogPosts, setBlogPosts] = useState<any[]>([]);
-  const [knowledgeBase, setKnowledgeBase] = useState<any[]>([]);
-  const [faqs, setFaqs] = useState<any[]>([]);
-  
-  const [isLiveEditorOpen, setIsLiveEditorOpen] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showEditor, setShowEditor] = useState(false);
-  const [editingCollection, setEditingCollection] = useState('');
   const [editingItem, setEditingItem] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (currentSite) {
       loadData();
+      // Subscribe to real-time updates
+      const unsubscribe = githubSDK.subscribe(collection, (data: any[]) => {
+        const siteItems = data.filter((item: any) => item.siteId === currentSite.id);
+        setItems(siteItems);
+      });
+      return unsubscribe;
     }
-  }, [currentSite]);
+  }, [currentSite, collection]);
 
   const loadData = async () => {
     if (!currentSite) return;
     
     setLoading(true);
     try {
-      const [packagesData, coursesData, eventsData, blogData, kbData, faqData] = await Promise.all([
-        githubSDK.get('packages'),
-        githubSDK.get('courses'),
-        githubSDK.get('events'),
-        githubSDK.get('blogs'),
-        githubSDK.get('knowledgebase'),
-        githubSDK.get('faqs')
-      ]);
-
-      setPackages(packagesData.filter((p: any) => p.siteId === currentSite.id));
-      setCourses(coursesData.filter((c: any) => c.siteId === currentSite.id));
-      setEvents(eventsData.filter((e: any) => e.siteId === currentSite.id));
-      setBlogPosts(blogData.filter((b: any) => b.siteId === currentSite.id));
-      setKnowledgeBase(kbData.filter((k: any) => k.siteId === currentSite.id));
-      setFaqs(faqData.filter((f: any) => f.siteId === currentSite.id));
+      const data = await githubSDK.get(collection);
+      const siteItems = data.filter((item: any) => item.siteId === currentSite.id);
+      setItems(siteItems);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error(`Error loading ${collection}:`, error);
       toast({
         title: "Error",
-        description: "Failed to load admin data",
+        description: `Failed to load ${displayName.toLowerCase()}`,
         variant: "destructive"
       });
     } finally {
@@ -69,14 +193,12 @@ const SiteAdmin = () => {
     }
   };
 
-  const handleCreate = (collection: string) => {
-    setEditingCollection(collection);
+  const handleCreate = () => {
     setEditingItem(null);
     setShowEditor(true);
   };
 
-  const handleEdit = (collection: string, item: any) => {
-    setEditingCollection(collection);
+  const handleEdit = (item: any) => {
     setEditingItem(item);
     setShowEditor(true);
   };
@@ -85,39 +207,44 @@ const SiteAdmin = () => {
     await loadData();
     setShowEditor(false);
     setEditingItem(null);
-    setEditingCollection('');
+    toast({
+      title: "Success",
+      description: `${displayName} saved successfully`
+    });
   };
 
   const handleCancel = () => {
     setShowEditor(false);
     setEditingItem(null);
-    setEditingCollection('');
   };
 
-  const handleDelete = async (collection: string, id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       await githubSDK.delete(collection, id);
-      await loadData();
       toast({
         title: "Success",
-        description: `Item deleted successfully`
+        description: `${displayName} deleted successfully`
       });
     } catch (error) {
-      console.error(`Error deleting item:`, error);
+      console.error(`Error deleting ${collection}:`, error);
       toast({
         title: "Error",
-        description: `Failed to delete item`,
+        description: `Failed to delete ${displayName.toLowerCase()}`,
         variant: "destructive"
       });
     }
   };
 
-  if (!currentSite) return null;
+  const filteredItems = items.filter(item =>
+    item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.question?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (showEditor) {
     return (
       <AdminCMSEditor
-        collection={editingCollection}
+        collection={collection}
         item={editingItem}
         onSave={handleSave}
         onCancel={handleCancel}
@@ -125,264 +252,137 @@ const SiteAdmin = () => {
     );
   }
 
-  const renderContentList = (items: any[], collection: string, displayName: string) => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">{displayName}</h2>
-        <Button onClick={() => handleCreate(collection)}>
-          <PlusCircle className="h-4 w-4 mr-2" />
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold" style={{ color: currentTheme?.primaryColor }}>
+            {displayName}
+          </h1>
+          <p className="text-gray-600">Manage your {displayName.toLowerCase()}</p>
+        </div>
+        <Button onClick={handleCreate} style={{ backgroundColor: currentTheme?.primaryColor }}>
+          <Plus className="mr-2 h-4 w-4" />
           Add {displayName.replace(/s$/, '')}
         </Button>
       </div>
 
-      <div className="grid gap-6">
-        {items.map((item) => (
-          <Card key={item.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>{item.title || item.question}</CardTitle>
-                  <CardDescription>{item.description || item.answer}</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Badge variant={item.status === 'published' || item.status === 'active' ? 'default' : 'secondary'}>
-                    {item.status}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">
-                  Created: {new Date(item.createdAt).toLocaleDateString()}
-                  {item.price && <span className="ml-4 font-semibold">${item.price}</span>}
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(collection, item)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete {displayName.replace(/s$/, '')}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete "{item.title || item.question}"? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(collection, item.id)}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder={`Search ${displayName.toLowerCase()}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
-      {items.length === 0 && (
+      {loading ? (
+        <div className="text-center py-12">Loading...</div>
+      ) : filteredItems.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
             <div className="text-muted-foreground mb-4">
               <Package className="h-12 w-12 mx-auto" />
             </div>
-            <p className="text-muted-foreground">No {displayName.toLowerCase()} created yet</p>
-            <Button className="mt-4" onClick={() => handleCreate(collection)}>
+            <p className="text-muted-foreground mb-4">No {displayName.toLowerCase()} found</p>
+            <Button onClick={handleCreate}>
               Create your first {displayName.replace(/s$/, '').toLowerCase()}
             </Button>
           </CardContent>
         </Card>
+      ) : (
+        <div className="grid gap-6">
+          {filteredItems.map((item) => (
+            <Card key={item.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="mb-2">
+                      {item.title || item.name || item.question || 'Untitled'}
+                    </CardTitle>
+                    <CardDescription className="mb-3">
+                      {item.description || item.excerpt || item.answer || 'No description'}
+                    </CardDescription>
+                    <div className="flex gap-2">
+                      <Badge variant={item.status === 'published' || item.status === 'active' ? 'default' : 'secondary'}>
+                        {item.status || 'draft'}
+                      </Badge>
+                      {item.price && (
+                        <Badge variant="outline">${item.price}</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 ml-4">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-red-600">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete {displayName.replace(/s$/, '')}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{item.title || item.name || 'this item'}"? 
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(item.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
+};
+
+const SiteAdmin = () => {
+  const { currentSite } = useSite();
+
+  if (!currentSite) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">No Site Selected</h1>
+          <p className="text-gray-600">Please select a site to manage</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div 
-      className="min-h-screen py-8"
-      style={{ backgroundColor: currentTheme?.backgroundColor || '#ffffff' }}
-    >
-      <div className="container mx-auto px-4">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 
-              className="text-3xl font-bold mb-2"
-              style={{ color: currentTheme?.primaryColor || '#004225' }}
-            >
-              Admin Dashboard
-            </h1>
-            <p style={{ color: currentTheme?.textColor || '#1f2937' }}>
-              Manage your {currentSite.name} platform
-            </p>
-          </div>
-          
-          <Button
-            onClick={() => setIsLiveEditorOpen(true)}
-            className="flex items-center gap-2"
-            style={{ 
-              backgroundColor: currentTheme?.accentColor || '#22c55e'
-            }}
-          >
-            <Edit3 className="w-4 h-4" />
-            Live Editor
-          </Button>
-        </div>
-
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="packages" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Packages
-            </TabsTrigger>
-            <TabsTrigger value="courses" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Courses
-            </TabsTrigger>
-            <TabsTrigger value="events" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="blog" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Blog
-            </TabsTrigger>
-            <TabsTrigger value="knowledge" className="flex items-center gap-2">
-              <HelpCircle className="h-4 w-4" />
-              Knowledge
-            </TabsTrigger>
-            <TabsTrigger value="faq" className="flex items-center gap-2">
-              <HelpCircle className="h-4 w-4" />
-              FAQ
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Packages</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{packages.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {packages.filter(p => p.status === 'active').length} active
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{courses.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {courses.filter(c => c.status === 'published').length} published
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{events.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {events.filter(e => e.status === 'active').length} active
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Blog Posts</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{blogPosts.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {blogPosts.filter(b => b.status === 'published').length} published
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              <Button onClick={() => handleCreate('packages')} className="h-20 flex-col">
-                <Package className="w-6 h-6 mb-2" />
-                New Package
-              </Button>
-              <Button onClick={() => handleCreate('courses')} className="h-20 flex-col" variant="outline">
-                <BookOpen className="w-6 h-6 mb-2" />
-                New Course
-              </Button>
-              <Button onClick={() => handleCreate('events')} className="h-20 flex-col" variant="outline">
-                <Calendar className="w-6 h-6 mb-2" />
-                New Event
-              </Button>
-              <Button onClick={() => handleCreate('blogs')} className="h-20 flex-col" variant="outline">
-                <FileText className="w-6 h-6 mb-2" />
-                New Blog Post
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="packages">
-            {renderContentList(packages, 'packages', 'Packages')}
-          </TabsContent>
-
-          <TabsContent value="courses">
-            {renderContentList(courses, 'courses', 'Courses')}
-          </TabsContent>
-
-          <TabsContent value="events">
-            {renderContentList(events, 'events', 'Events')}
-          </TabsContent>
-
-          <TabsContent value="blog">
-            {renderContentList(blogPosts, 'blogs', 'Blog Posts')}
-          </TabsContent>
-
-          <TabsContent value="knowledge">
-            {renderContentList(knowledgeBase, 'knowledgebase', 'Knowledge Base')}
-          </TabsContent>
-
-          <TabsContent value="faq">
-            {renderContentList(faqs, 'faqs', 'FAQs')}
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <LiveEditor 
-        isOpen={isLiveEditorOpen}
-        onClose={() => setIsLiveEditorOpen(false)}
-      />
-    </div>
+    <AdminLayout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/packages" element={<ContentManager collection="packages" displayName="Packages" />} />
+        <Route path="/courses" element={<ContentManager collection="courses" displayName="Courses" />} />
+        <Route path="/events" element={<ContentManager collection="events" displayName="Events" />} />
+        <Route path="/blog" element={<ContentManager collection="blogs" displayName="Blog Posts" />} />
+        <Route path="/knowledge" element={<ContentManager collection="knowledgebase" displayName="Knowledge Base" />} />
+        <Route path="/faq" element={<ContentManager collection="faqs" displayName="FAQs" />} />
+        <Route path="/users" element={<ContentManager collection="users" displayName="Users" />} />
+      </Routes>
+    </AdminLayout>
   );
 };
 
