@@ -62,7 +62,7 @@ class GitHubSDK extends UniversalSDK {
         };
         
         // Notify subscribers
-        this.notifySubscribers(endpoint, data);
+        this.notifyGithubSubscribers(endpoint, data);
         
         console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
         return data;
@@ -81,7 +81,7 @@ class GitHubSDK extends UniversalSDK {
     }
   }
 
-  private notifySubscribers(collection: string, data: any[]) {
+  private notifyGithubSubscribers(collection: string, data: any[]) {
     (this.githubSubscribers[collection] || []).forEach(cb => cb(data));
   }
 
@@ -136,14 +136,14 @@ class GitHubSDK extends UniversalSDK {
         uid: uuidv4(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      } as unknown as T & { id: string; uid: string; };
+      } as T & { id: string; uid: string; };
       
       const updatedItems = [...items, newItem];
       await this.updateContent(collection, updatedItems);
       
       // Update cache and notify subscribers
       this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
-      this.notifySubscribers(collection, updatedItems);
+      this.notifyGithubSubscribers(collection, updatedItems);
       
       return newItem;
     } catch (error) {
@@ -167,7 +167,7 @@ class GitHubSDK extends UniversalSDK {
       
       // Update cache and notify subscribers
       this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
-      this.notifySubscribers(collection, updatedItems);
+      this.notifyGithubSubscribers(collection, updatedItems);
       
       const updatedItem = updatedItems.find((item: any) => item.id === key);
       if (!updatedItem) throw new Error(`Item with key ${key} not found`);
@@ -186,7 +186,7 @@ class GitHubSDK extends UniversalSDK {
       
       // Update cache and notify subscribers
       this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
-      this.notifySubscribers(collection, updatedItems);
+      this.notifyGithubSubscribers(collection, updatedItems);
     } catch (error) {
       console.error(`Error deleting item from ${collection}:`, error);
       throw error;
