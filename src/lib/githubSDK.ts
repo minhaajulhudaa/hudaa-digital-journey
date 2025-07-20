@@ -25,8 +25,8 @@ const base64Decode = (str: string): string => {
 
 class GitHubSDK extends UniversalSDK {
   private api: any;
-  private cache: Record<string, { data: any[], sha?: string, etag?: string }> = {};
-  private subscribers: Record<string, Function[]> = {};
+  private githubCache: Record<string, { data: any[], sha?: string, etag?: string }> = {};
+  private githubSubscribers: Record<string, Function[]> = {};
 
   constructor(config: GitHubSDKConfig) {
     // Initialize parent with dummy values since we override the methods
@@ -52,10 +52,10 @@ class GitHubSDK extends UniversalSDK {
       
       try {
         const response = await this.api.get(`/repos/${repoPath}/contents/data/${endpoint}.json`);
-        const data = JSON.parse(base64Decode(response.data.content));
+        const data = JSON.parse(base64Decode(response.data.content)) as T[];
         
         // Update cache
-        this.cache[endpoint] = { 
+        this.githubCache[endpoint] = { 
           data, 
           sha: response.data.sha,
           etag: response.headers.etag
@@ -65,12 +65,12 @@ class GitHubSDK extends UniversalSDK {
         this.notifySubscribers(endpoint, data);
         
         console.log(`Successfully fetched ${endpoint} from ${repoPath}`);
-        return data as T[];
+        return data;
       } catch (fetchError: any) {
         if (fetchError.response?.status === 404) {
           console.log(`Collection ${endpoint} doesn't exist, creating it...`);
           await this.createCollection(endpoint);
-          return [];
+          return [] as T[];
         }
         throw fetchError;
       }
@@ -82,20 +82,20 @@ class GitHubSDK extends UniversalSDK {
   }
 
   private notifySubscribers(collection: string, data: any[]) {
-    (this.subscribers[collection] || []).forEach(cb => cb(data));
+    (this.githubSubscribers[collection] || []).forEach(cb => cb(data));
   }
 
   subscribe<T = any>(collection: string, callback: (data: T[]) => void): () => void {
-    if (!this.subscribers[collection]) {
-      this.subscribers[collection] = [];
+    if (!this.githubSubscribers[collection]) {
+      this.githubSubscribers[collection] = [];
     }
-    this.subscribers[collection].push(callback);
+    this.githubSubscribers[collection].push(callback);
 
     // Immediately provide current data if available
-    if (this.cache[collection]) {
-      callback(this.cache[collection].data);
+    if (this.githubCache[collection]) {
+      callback(this.githubCache[collection].data as T[]);
     } else {
-      this.get(collection).then(data => callback(data));
+      this.get(collection).then(data => callback(data as T[]));
     }
 
     // Set up polling for real-time updates
@@ -109,8 +109,8 @@ class GitHubSDK extends UniversalSDK {
     }, 5000); // Poll every 5 seconds
 
     return () => {
-      this.subscribers[collection] = (this.subscribers[collection] || []).filter(cb => cb !== callback);
-      if (this.subscribers[collection].length === 0) {
+      this.githubSubscribers[collection] = (this.githubSubscribers[collection] || []).filter(cb => cb !== callback);
+      if (this.githubSubscribers[collection].length === 0) {
         clearInterval(pollInterval);
       }
     };
@@ -119,7 +119,7 @@ class GitHubSDK extends UniversalSDK {
   async getItem<T>(endpoint: string, itemId: string): Promise<T | null> {
     try {
       const items = await this.get<T>(endpoint);
-      const item = (items as any[]).find(item => item.id === itemId);
+      const item = items.find((item: any) => item.id === itemId);
       return item || null;
     } catch (error) {
       console.error(`Error fetching ${endpoint} item with ID ${itemId}:`, error);
@@ -136,13 +136,13 @@ class GitHubSDK extends UniversalSDK {
         uid: uuidv4(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      } as T & { id: string; uid: string; };
+      } as unknown as T & { id: string; uid: string; };
       
-      const updatedItems = [...(items as any[]), newItem];
+      const updatedItems = [...items, newItem];
       await this.updateContent(collection, updatedItems);
       
       // Update cache and notify subscribers
-      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
       this.notifySubscribers(collection, updatedItems);
       
       return newItem;
@@ -155,7 +155,7 @@ class GitHubSDK extends UniversalSDK {
   async update<T = any>(collection: string, key: string, updates: Partial<T>): Promise<T> {
     try {
       const items = await this.get<T>(collection);
-      const updatedItems = (items as any[]).map(item =>
+      const updatedItems = items.map((item: any) =>
         item.id === key ? { 
           ...item, 
           ...updates, 
@@ -166,12 +166,12 @@ class GitHubSDK extends UniversalSDK {
       await this.updateContent(collection, updatedItems);
       
       // Update cache and notify subscribers
-      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
       this.notifySubscribers(collection, updatedItems);
       
-      const updatedItem = updatedItems.find(item => item.id === key);
+      const updatedItem = updatedItems.find((item: any) => item.id === key);
       if (!updatedItem) throw new Error(`Item with key ${key} not found`);
-      return updatedItem;
+      return updatedItem as T;
     } catch (error) {
       console.error(`Error updating item in ${collection}:`, error);
       throw error;
@@ -181,11 +181,11 @@ class GitHubSDK extends UniversalSDK {
   async delete<T = any>(collection: string, key: string): Promise<void> {
     try {
       const items = await this.get(collection);
-      const updatedItems = (items as any[]).filter(item => item.id !== key);
+      const updatedItems = items.filter((item: any) => item.id !== key);
       await this.updateContent(collection, updatedItems);
       
       // Update cache and notify subscribers
-      this.cache[collection] = { ...this.cache[collection], data: updatedItems };
+      this.githubCache[collection] = { ...this.githubCache[collection], data: updatedItems };
       this.notifySubscribers(collection, updatedItems);
     } catch (error) {
       console.error(`Error deleting item from ${collection}:`, error);
@@ -245,8 +245,8 @@ class GitHubSDK extends UniversalSDK {
     try {
       // Get current SHA to prevent conflicts
       let sha: string | undefined;
-      if (this.cache[endpoint]?.sha) {
-        sha = this.cache[endpoint].sha;
+      if (this.githubCache[endpoint]?.sha) {
+        sha = this.githubCache[endpoint].sha;
       } else {
         try {
           const getResponse = await this.api.get(`/repos/${repoPath}/contents/${filePath}`);
@@ -271,8 +271,8 @@ class GitHubSDK extends UniversalSDK {
       const response = await this.api.put(`/repos/${repoPath}/contents/${filePath}`, updateData);
       
       // Update cached SHA
-      if (this.cache[endpoint]) {
-        this.cache[endpoint].sha = response.data.content.sha;
+      if (this.githubCache[endpoint]) {
+        this.githubCache[endpoint].sha = response.data.content.sha;
       }
       
       console.log(`Successfully updated ${endpoint} in ${repoPath}`);
