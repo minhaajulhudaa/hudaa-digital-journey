@@ -1,4 +1,3 @@
-
 import UniversalSDK from './UniversalSDK';
 import { Theme, defaultSections, enhancedThemes } from '@/types/theme';
 import { additionalThemes } from './additionalThemes';
@@ -136,7 +135,7 @@ class GitHubSDK extends UniversalSDK {
         uid: uuidv4(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      } as T & { id: string; uid: string; };
+      } as unknown as T & { id: string; uid: string; };
       
       const updatedItems = [...items, newItem];
       await this.updateContent(collection, updatedItems);
