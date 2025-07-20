@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
@@ -18,6 +17,7 @@ import githubSDK from '@/lib/githubSDK';
 const Dashboard = () => {
   const { currentSite } = useSite();
   const { currentTheme } = useTheme();
+  const { siteSlug } = useParams();
   const [stats, setStats] = useState({
     packages: 0,
     courses: 0,
@@ -357,6 +357,10 @@ const ContentManager = ({ collection, displayName }: { collection: string; displ
 
 const SiteAdmin = () => {
   const { currentSite } = useSite();
+  const { siteSlug } = useParams();
+
+  console.log('SiteAdmin: currentSite =', currentSite);
+  console.log('SiteAdmin: siteSlug =', siteSlug);
 
   if (!currentSite) {
     return (
@@ -372,7 +376,7 @@ const SiteAdmin = () => {
   return (
     <AdminLayout>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/" element={<Navigate to={`/${siteSlug}/admin/dashboard`} replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/packages" element={<ContentManager collection="packages" displayName="Packages" />} />
         <Route path="/courses" element={<ContentManager collection="courses" displayName="Courses" />} />

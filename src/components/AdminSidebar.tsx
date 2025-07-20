@@ -1,15 +1,24 @@
 
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { 
-  LayoutDashboard, Package, BookOpen, Calendar, FileText, 
-  HelpCircle, MessageSquare, Users, Settings, Eye, LogOut,
-  ChevronLeft, ChevronRight
+  LayoutDashboard, 
+  Package, 
+  BookOpen, 
+  Calendar, 
+  FileText, 
+  MessageSquare, 
+  HelpCircle, 
+  Users, 
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Menu
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { useSite } from '@/hooks/useSite';
 import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface AdminSidebarProps {
   collapsed: boolean;
@@ -17,102 +26,82 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onToggle }) => {
-  const location = useLocation();
   const { currentSite } = useSite();
   const { currentTheme } = useTheme();
+  const { siteSlug } = useParams();
 
   const menuItems = [
-    { 
-      icon: LayoutDashboard, 
-      label: 'Dashboard', 
-      path: '/admin/dashboard',
-      description: 'Overview & Analytics'
+    {
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: `/${siteSlug}/admin/dashboard`,
     },
-    { 
-      icon: Package, 
-      label: 'Packages', 
-      path: '/admin/packages',
-      description: 'Travel Packages'
+    {
+      label: 'Packages',
+      icon: Package,
+      path: `/${siteSlug}/admin/packages`,
     },
-    { 
-      icon: BookOpen, 
-      label: 'Courses', 
-      path: '/admin/courses',
-      description: 'Educational Programs'
+    {
+      label: 'Courses',
+      icon: BookOpen,
+      path: `/${siteSlug}/admin/courses`,
     },
-    { 
-      icon: Calendar, 
-      label: 'Events', 
-      path: '/admin/events',
-      description: 'Events & Activities'
+    {
+      label: 'Events',
+      icon: Calendar,
+      path: `/${siteSlug}/admin/events`,
     },
-    { 
-      icon: FileText, 
-      label: 'Blog', 
-      path: '/admin/blog',
-      description: 'Blog Posts'
+    {
+      label: 'Blog Posts',
+      icon: FileText,
+      path: `/${siteSlug}/admin/blog`,
     },
-    { 
-      icon: HelpCircle, 
-      label: 'Knowledge Base', 
-      path: '/admin/knowledge',
-      description: 'Help Articles'
+    {
+      label: 'Knowledge Base',
+      icon: MessageSquare,
+      path: `/${siteSlug}/admin/knowledge`,
     },
-    { 
-      icon: MessageSquare, 
-      label: 'FAQ', 
-      path: '/admin/faq',
-      description: 'Frequently Asked Questions'
+    {
+      label: 'FAQs',
+      icon: HelpCircle,
+      path: `/${siteSlug}/admin/faq`,
     },
-    { 
-      icon: Users, 
-      label: 'Users', 
-      path: '/admin/users',
-      description: 'User Management'
+    {
+      label: 'Users',
+      icon: Users,
+      path: `/${siteSlug}/admin/users`,
     },
-    { 
-      icon: Settings, 
-      label: 'Settings', 
-      path: '/admin/settings',
-      description: 'Site Configuration'
-    }
   ];
 
-  const isActive = (path: string) => location.pathname === path;
-
-  const sidebarStyle = {
-    backgroundColor: currentTheme?.cardColor || '#ffffff',
-    borderColor: currentTheme?.borderColor || '#e5e7eb'
-  };
-
   return (
-    <div 
+    <div
       className={cn(
-        "h-screen bg-white border-r transition-all duration-300 flex flex-col",
-        collapsed ? "w-16" : "w-64"
+        'flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300',
+        collapsed ? 'w-16' : 'w-64'
       )}
-      style={sidebarStyle}
     >
       {/* Header */}
-      <div className="p-4 border-b" style={{ borderColor: currentTheme?.borderColor || '#e5e7eb' }}>
-        <div className="flex items-center justify-between">
-          {!collapsed && (
-            <div>
-              <h2 className="font-bold text-lg" style={{ color: currentTheme?.primaryColor || '#004225' }}>
-                {currentSite?.name || 'Admin'}
-              </h2>
-              <p className="text-sm text-gray-500">Control Panel</p>
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        {!collapsed && (
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold" 
+                 style={{ backgroundColor: currentTheme?.primaryColor }}>
+              {currentSite?.name?.charAt(0) || 'A'}
             </div>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-            className="ml-auto"
-          >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
-        </div>
+            <div>
+              <h2 className="font-semibold text-sm">{currentSite?.name}</h2>
+              <p className="text-xs text-gray-500">Admin Panel</p>
+            </div>
+          </div>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggle}
+          className="p-2"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
       </div>
 
       {/* Navigation */}
@@ -123,50 +112,41 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onToggle }) => {
             to={item.path}
             className={({ isActive }) =>
               cn(
-                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                "hover:bg-gray-100",
+                'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                 isActive
-                  ? "text-white shadow-sm"
-                  : "text-gray-700 hover:text-gray-900"
+                  ? 'text-white shadow-sm'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
               )
             }
-            style={({ isActive }) => 
-              isActive 
-                ? { backgroundColor: currentTheme?.primaryColor || '#004225' }
-                : {}
-            }
+            style={({ isActive }) => ({
+              backgroundColor: isActive ? currentTheme?.primaryColor : undefined,
+            })}
           >
-            <item.icon className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
-            {!collapsed && (
-              <div className="flex-1">
-                <div>{item.label}</div>
-                <div className="text-xs opacity-75">{item.description}</div>
-              </div>
-            )}
+            <item.icon className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && <span>{item.label}</span>}
           </NavLink>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t space-y-2" style={{ borderColor: currentTheme?.borderColor || '#e5e7eb' }}>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn("w-full justify-start", collapsed && "px-2")}
-          onClick={() => window.open(`/${currentSite?.slug}`, '_blank')}
+      <div className="p-4 border-t border-gray-200">
+        <NavLink
+          to={`/${siteSlug}/admin/settings`}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+              isActive
+                ? 'text-white shadow-sm'
+                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            )
+          }
+          style={({ isActive }) => ({
+            backgroundColor: isActive ? currentTheme?.primaryColor : undefined,
+          })}
         >
-          <Eye className={cn("h-4 w-4", !collapsed && "mr-2")} />
-          {!collapsed && "View Site"}
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("w-full justify-start text-red-600 hover:text-red-700", collapsed && "px-2")}
-        >
-          <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
-          {!collapsed && "Logout"}
-        </Button>
+          <Settings className="h-5 w-5 flex-shrink-0" />
+          {!collapsed && <span>Settings</span>}
+        </NavLink>
       </div>
     </div>
   );

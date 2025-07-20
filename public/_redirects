@@ -1,8 +1,18 @@
 
-# Handle site-specific routes first
-/:siteSlug/auth /index.html 200
-/:siteSlug/admin /index.html 200
+# Handle site-specific admin routes first
+/:siteSlug/admin/* /:siteSlug/admin/dashboard 200
 /:siteSlug/admin/dashboard /index.html 200
+/:siteSlug/admin/packages /index.html 200
+/:siteSlug/admin/courses /index.html 200
+/:siteSlug/admin/events /index.html 200
+/:siteSlug/admin/blog /index.html 200
+/:siteSlug/admin/knowledge /index.html 200
+/:siteSlug/admin/faq /index.html 200
+/:siteSlug/admin/users /index.html 200
+/:siteSlug/admin/settings /index.html 200
+
+# Handle site-specific routes
+/:siteSlug/auth /index.html 200
 /:siteSlug/dashboard /index.html 200
 /:siteSlug/packages /index.html 200
 /:siteSlug/blog /index.html 200
@@ -16,4 +26,5 @@
 /:siteSlug /index.html 200
 
 # Main platform routes
+/admin/* /index.html 200
 /* /index.html 200
